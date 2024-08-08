@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatusCode;
 import lombok.Getter;
 
 @Getter
-public enum ErrorCode {
+public enum ErrorCode implements BaseError {
     INVALID_KEY(400, "Invalid key", HttpStatus.BAD_REQUEST),
     RESOURCE_NOT_FOUND(404, "Resource not found", HttpStatus.NOT_FOUND),
 
@@ -29,6 +29,8 @@ public enum ErrorCode {
     ROLE_DESCRIPTION_MAXLENGTH_INVALID(400, "Role description max length invalid", HttpStatus.BAD_REQUEST),
     ROLE_CODE_INVALID(400, "Role code invalid", HttpStatus.BAD_REQUEST),
 
+    RATE_LIMIT_ERROR(400, "Rate limit exceeded. Please wait before trying again.", HttpStatus.BAD_REQUEST),
+
     // account user
     USER_EXIST_INVALID(400, "Username exists", HttpStatus.BAD_REQUEST);
 
@@ -41,4 +43,9 @@ public enum ErrorCode {
     private int code;
     private String message;
     private HttpStatusCode statusCode;
+
+    @Override
+    public HttpStatusCode getHttpStatusCode() {
+        return this.statusCode;
+    }
 }

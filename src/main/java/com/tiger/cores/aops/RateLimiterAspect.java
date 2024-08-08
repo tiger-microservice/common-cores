@@ -12,6 +12,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import com.tiger.cores.aops.annotations.RateLimiter;
+import com.tiger.cores.exceptions.ErrorCode;
 import com.tiger.cores.exceptions.RateLimitExceededException;
 import com.tiger.cores.services.RedisRateLimiter;
 import com.tiger.cores.utils.UserInfoUtil;
@@ -37,7 +38,7 @@ public class RateLimiterAspect extends AbstractAspect {
                 return joinPoint.proceed();
             }
 
-            throw new RateLimitExceededException("Rate limit exceeded. Please wait before trying again.");
+            throw new RateLimitExceededException(ErrorCode.RATE_LIMIT_ERROR);
         } catch (Throwable e) {
             log.error("[rateLimiterExecute] error {}", e.getMessage(), e);
             throw e;

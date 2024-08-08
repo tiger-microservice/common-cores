@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class AuthLogicException extends RuntimeException {
 
-    private final ErrorCode errorCode;
+    private final BaseError errorCode;
 
-    public AuthLogicException(ErrorCode errorCode) {
+    public AuthLogicException(BaseError errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

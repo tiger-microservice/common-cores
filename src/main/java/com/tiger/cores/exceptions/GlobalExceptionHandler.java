@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse<Object>> handlingMethodArgumentNotValidException(
             MethodArgumentNotValidException exception) {
         String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+        BaseError errorCode = ErrorCode.INVALID_KEY;
         Map<String, Object> attributes = null;
 
         try {
@@ -67,14 +67,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = BusinessLogicException.class)
     ResponseEntity<ApiResponse<Object>> handlingBusinessLogicException(BusinessLogicException exception) {
-        ErrorCode errorCode = exception.getErrorCode();
-        return ResponseEntity.status(errorCode.getStatusCode())
+        BaseError errorCode = exception.getErrorCode();
+        return ResponseEntity.status(errorCode.getCode())
                 .body(ApiResponse.responseError(errorCode.getCode(), translator.toMessage(errorCode.getMessage())));
     }
 
     @ExceptionHandler(value = AuthLogicException.class)
     ResponseEntity<ApiResponse<Object>> handlingAuthLogicException(AuthLogicException exception) {
-        ErrorCode errorCode = exception.getErrorCode();
+        BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.responseError(errorCode.getCode(), translator.toMessage(exception.getMessage())));
     }
