@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.tiger.common.utils.MessageUtils;
 import com.tiger.cores.configs.locale.Translator;
+import com.tiger.cores.dtos.responses.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import vn.tiger.dtos.responses.ApiResponse;
 
 @Slf4j
 @RestControllerAdvice

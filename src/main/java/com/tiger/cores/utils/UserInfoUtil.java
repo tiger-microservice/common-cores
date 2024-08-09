@@ -5,9 +5,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.tiger.common.utils.ObjectMapperUtil;
 import com.tiger.cores.constants.AppConstants;
-
-import vn.tiger.dtos.UserPayloadDto;
-import vn.tiger.enums.Domain;
+import com.tiger.cores.constants.enums.Domain;
+import com.tiger.cores.dtos.UserPayloadDto;
 
 public final class UserInfoUtil {
 
