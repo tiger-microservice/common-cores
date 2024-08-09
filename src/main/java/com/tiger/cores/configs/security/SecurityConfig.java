@@ -49,7 +49,7 @@ public class SecurityConfig {
                 request.requestMatchers(HttpMethod.POST, securityProperties.getPublicEndpoints())
                         .permitAll()
                         // permit all swagger
-                        .requestMatchers("/v3/**", "/swagger-ui/**")
+                        .requestMatchers("/v3/**", "/swagger-ui/**", "/actuator/*")
                         .permitAll()
                         // any request need to check auth
                         .anyRequest()
