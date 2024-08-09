@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,17 +20,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiger.cores.constants.AppConstants;
 
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 
 // refer guideline https://viblo.asia/p/spring-boot-huong-dan-tao-bean-co-dieu-kien-voi-atconditional-gDVK2270KLj
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        value = "app.security.config.custom",
+        value = "app.security.config-custom",
         havingValue = "false", // Nếu giá trị app.security.config.custom  = true thì Bean mới được khởi tạo
         matchIfMissing =
                 false) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
@@ -39,12 +36,8 @@ public class SecurityConfig {
 
     final CustomJwtDecoder customJwtDecoder;
     final ObjectMapper objectMapper;
+    final SecurityProperties securityProperties;
 
-    @NonFinal
-    @Value("${app.security.public.endpoints}")
-    private String[] publicEndpoints;
-
-    @NonFinal
     @Value("${app.cross-origin:false}")
     private Boolean crossOrigin;
 
@@ -53,7 +46,7 @@ public class SecurityConfig {
         // setting api method post ko can auth
         httpSecurity.authorizeHttpRequests(request ->
                 // permit all public endpoint
-                request.requestMatchers(HttpMethod.POST, publicEndpoints)
+                request.requestMatchers(HttpMethod.POST, securityProperties.getPublicEndpoints())
                         .permitAll()
                         // permit all swagger
                         .requestMatchers("/v3/**", "/swagger-ui/**")
