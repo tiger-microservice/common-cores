@@ -25,6 +25,12 @@
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>vn.tiger</groupId>
+            <artifactId>common-dtos</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!--sanitizer-->
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
