@@ -14,4 +14,8 @@ public interface CacheService {
     Long getValue(String key);
 
     Long getValue(String key, long milliSeconds);
+
+    void put(String key, Object value, long milliSeconds);
+
+    Object get(String key);
 }

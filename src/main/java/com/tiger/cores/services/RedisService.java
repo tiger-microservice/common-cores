@@ -56,4 +56,14 @@ public class RedisService implements CacheService {
         Object andExpire = redisTemplate.opsForValue().getAndExpire(key, milliSeconds, TimeUnit.MILLISECONDS);
         return (Long) andExpire;
     }
+
+    @Override
+    public void put(String key, Object value, long milliSeconds) {
+        redisTemplate.opsForValue().set(key, value, milliSeconds, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public Object get(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
 }
