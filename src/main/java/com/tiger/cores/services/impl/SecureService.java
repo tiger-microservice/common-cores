@@ -114,7 +114,7 @@ public class SecureService {
     }
 
     public static void encryptFields(Object obj, String[] fields) throws IllegalAccessException {
-        if (obj == null || fields == null) return;
+        if (fields.length == 0) return;
         for (Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             if (field.getType().equals(String.class)) {
@@ -137,7 +137,7 @@ public class SecureService {
     }
 
     public static void decryptFields(Object obj, String[] fields) throws IllegalAccessException {
-        if (obj == null || fields == null) return;
+        if (fields.length == 0) return;
         for (Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             if (field.getType().equals(String.class)) {
