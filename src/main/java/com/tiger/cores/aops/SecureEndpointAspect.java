@@ -13,8 +13,8 @@ import com.tiger.cores.dtos.requests.BaseRequest;
 import com.tiger.cores.dtos.responses.ApiResponse;
 import com.tiger.cores.exceptions.BusinessLogicException;
 import com.tiger.cores.exceptions.ErrorCode;
-import com.tiger.cores.services.RedisService;
-import com.tiger.cores.services.SecureService;
+import com.tiger.cores.services.impl.RedisService;
+import com.tiger.cores.services.impl.SecureService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

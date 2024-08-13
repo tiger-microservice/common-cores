@@ -1,4 +1,4 @@
-package com.tiger.cores.services;
+package com.tiger.cores.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiger.cores.exceptions.BusinessLogicException;
@@ -125,11 +125,6 @@ public class SecureService {
                             String encryptedValue = encrypt(originalValue);
                             field.set(obj, encryptedValue);
                         }
-                    } else {
-                        log.info(
-                                "Field [{}] not existed in [{}]",
-                                fieldName,
-                                obj.getClass().getName());
                     }
                 }
             } else {
