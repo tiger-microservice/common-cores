@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum ErrorCode implements BaseError {
     INVALID_KEY(400, "Invalid key", HttpStatus.BAD_REQUEST),
     RESOURCE_NOT_FOUND(404, "Resource not found", HttpStatus.NOT_FOUND),
+    BEAN_NOT_DEFINED(404, "MSG00003", HttpStatus.NOT_FOUND),
 
     USER_NOT_EXISTED(404, "User not existed", HttpStatus.FORBIDDEN),
     USERNAME_INVALID(403, "Username invalid format rule", HttpStatus.BAD_REQUEST),

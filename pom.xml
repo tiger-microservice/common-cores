@@ -16,6 +16,7 @@
     <description>common-cores</description>
     <properties>
         <java.version>21</java.version>
+        <springdoc-openapi-webmvc-ui.version>2.5.0</springdoc-openapi-webmvc-ui.version>
         <spotless.version>2.43.0</spotless.version>
     </properties>
     <dependencies>
@@ -45,6 +46,14 @@
             <version>5.0.2</version>
         </dependency>
         <!--redis-->
+
+        <!--swagger ui-->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi-webmvc-ui.version}</version>
+        </dependency>
+        <!--swagger ui-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

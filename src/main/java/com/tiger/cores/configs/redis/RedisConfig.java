@@ -1,6 +1,5 @@
 package com.tiger.cores.configs.redis;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisPassword;
@@ -9,22 +8,19 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfig {
 
-    @Value("${app.redis.host}")
-    private String hostName;
-
-    @Value("${app.redis.port}")
-    private int port;
-
-    @Value("${app.redis.password}")
-    private String password;
+    final RedisProperties redisProperties;
 
     @Bean
     JedisConnectionFactory jedisConnectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(hostName, port);
-        redisStandaloneConfiguration.setPassword(RedisPassword.of(password));
+        RedisStandaloneConfiguration redisStandaloneConfiguration =
+                new RedisStandaloneConfiguration(redisProperties.getHostName(), redisProperties.getPort());
+        redisStandaloneConfiguration.setPassword(RedisPassword.of(redisProperties.getPassword()));
         return new JedisConnectionFactory(redisStandaloneConfiguration);
     }
 
