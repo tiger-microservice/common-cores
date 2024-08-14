@@ -15,6 +15,7 @@ import lombok.Setter;
 public class SecurityProperties {
     private Boolean configCustom;
     private String[] publicEndpoints;
+    private String[] ignorePermissions;
 
     @PostConstruct
     private void setDefaults() {
@@ -23,6 +24,9 @@ public class SecurityProperties {
         }
         if (publicEndpoints == null) {
             publicEndpoints = new String[] {"/internal/**"}; // Default value
+        }
+        if (ignorePermissions == null) {
+            ignorePermissions = new String[] {"/v1/account/permissions"}; // Default value
         }
     }
 }
