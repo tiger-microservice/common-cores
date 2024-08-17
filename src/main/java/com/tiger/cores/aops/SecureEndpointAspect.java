@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiger.cores.aops.annotations.SecureEndpoint;
-import com.tiger.cores.dtos.requests.BaseRequest;
+import com.tiger.cores.constants.AppConstants;
 import com.tiger.cores.dtos.responses.ApiResponse;
+import com.tiger.cores.entities.MasterConfig;
 import com.tiger.cores.exceptions.BusinessLogicException;
 import com.tiger.cores.exceptions.ErrorCode;
+import com.tiger.cores.repositories.ConfigRepository;
 import com.tiger.cores.services.impl.RedisService;
 import com.tiger.cores.services.impl.SecureService;
 
@@ -29,41 +31,42 @@ public class SecureEndpointAspect {
     private final HttpServletRequest httpRequest;
     private final SecureService secureService;
     private final ObjectMapper objectMapper;
+    private final ConfigRepository configRepository;
 
     @Around(value = "@annotation(secure) && args(request)", argNames = "joinPoint,secure,request")
-    public Object secureEndpoint(ProceedingJoinPoint joinPoint, SecureEndpoint secure, BaseRequest<Object> request)
+    public Object secureEndpoint(ProceedingJoinPoint joinPoint, SecureEndpoint secure, Object request)
             throws Throwable {
 
-        boolean isSecure = Boolean.parseBoolean(httpRequest.getHeader("iss"));
-        if (isSecure) {
-            return processSecure(joinPoint, request, secure);
-        } else {
+        MasterConfig config = configRepository.findByConfigName(AppConstants.FLAG_SECURE);
+
+        if (config == null || "OFF".equals(config.getConfigValue())) {
             return processNormal(joinPoint, request, secure);
+        } else {
+            return processSecure(joinPoint, request, secure);
         }
     }
 
-    private ApiResponse<?> processSecure(
-            ProceedingJoinPoint joinPoint, BaseRequest<Object> request, SecureEndpoint secure) throws Throwable {
-        String sgId = httpRequest.getHeader("sgId");
-        Object aesKey = redisService.get(sgId);
+    private ApiResponse<?> processSecure(ProceedingJoinPoint joinPoint, Object request, SecureEndpoint secure)
+            throws Throwable {
+
+        String appKey = httpRequest.getHeader(AppConstants.APP_TRANSACTION_KEY);
+        Object aesKey = redisService.get(appKey);
         if (aesKey == null) {
             throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
         // Decrypt request body
-        String decryptedData =
-                secureService.decryptBody(aesKey.toString(), request.getData().toString(), sgId);
+        String decryptedData = secureService.decryptBody(aesKey.toString(), request.toString(), appKey);
         // Convert request body to POJO type
         Object convertedObject = objectMapper.readValue(decryptedData, secure.pojoType());
         // Call main business
-        Object result = joinPoint.proceed(
-                new Object[] {BaseRequest.builder().data(convertedObject).build()});
-        return ApiResponse.responseOK(secureService.encryptBody(aesKey.toString(), result, sgId));
+        Object result = joinPoint.proceed(new Object[] {convertedObject});
+        return ApiResponse.responseOK(secureService.encryptBody(aesKey.toString(), result, appKey));
     }
 
-    private Object processNormal(ProceedingJoinPoint joinPoint, BaseRequest<Object> request, SecureEndpoint secure)
+    private Object processNormal(ProceedingJoinPoint joinPoint, Object request, SecureEndpoint secure)
             throws Throwable {
         // Convert request body to POJO type
-        Object convertedObject = objectMapper.convertValue(request.getData(), secure.pojoType());
-        return joinPoint.proceed(new Object[] {BaseRequest.builder().data(convertedObject).build()});
+        Object convertedObject = objectMapper.convertValue(request, secure.pojoType());
+        return joinPoint.proceed(new Object[] {convertedObject});
     }
 }

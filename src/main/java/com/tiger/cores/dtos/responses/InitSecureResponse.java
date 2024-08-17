@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InitResponse {
+public class InitSecureResponse {
 
     // Secure Generated ID
     private String sgId;

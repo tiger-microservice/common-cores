@@ -1,8 +1,13 @@
 package com.tiger.cores.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tiger.cores.constants.AppConstants;
+import com.tiger.cores.dtos.responses.ApiResponse;
+import com.tiger.cores.dtos.responses.InitSecureResponse;
+import com.tiger.cores.entities.MasterConfig;
 import com.tiger.cores.exceptions.BusinessLogicException;
 import com.tiger.cores.exceptions.ErrorCode;
+import com.tiger.cores.repositories.ConfigRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +18,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -21,10 +30,50 @@ import java.util.Base64;
 public class SecureService {
 
     private final ObjectMapper objectMapper;
+    private final RedisService redisService;
+    private final ConfigRepository configRepository;
 
     // Temporary storage
     public static final String AES_KEY = "NFNsJ2Iox08ZlfDt9KiGLer7cNNoMRnqmtquSCEE0D0=";
     public static final String IV = "3ccb508381494a44";
+
+    public ApiResponse<?> initSecureProcess(String data) {
+        try {
+            // Decode and create public key object
+            byte[] keyBytes = Base64.getDecoder().decode(data);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(spec);
+
+            // Generate AES key
+            String aesKey = SecureService.generateKey();
+
+            String initSecureId = UUID.randomUUID().toString();
+
+            // Save AES key to Redis
+            redisService.put(initSecureId, aesKey, 30000);
+
+            MasterConfig config = configRepository.findByConfigName(AppConstants.FLAG_SECURE);
+
+            // Encrypt response with RSA public key
+            InitSecureResponse response = InitSecureResponse.builder()
+                    .iss(config != null && "ON".equals(config.getConfigValue()))
+                    .sgId(initSecureId)
+                    .eak(aesKey)
+                    .build();
+
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] encryptedData = cipher.doFinal(objectMapper.writeValueAsBytes(response));
+            String encryptedDataBase64 = Base64.getEncoder().encodeToString(encryptedData);
+
+            // Return encrypted data
+            return ApiResponse.<String>builder().data(encryptedDataBase64).build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+    }
 
     /**
      * Used to decrypt request body
