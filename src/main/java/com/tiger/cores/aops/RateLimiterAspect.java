@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.tiger.cores.aops.annotations.RateLimiter;
 import com.tiger.cores.exceptions.ErrorCode;
 import com.tiger.cores.exceptions.RateLimitExceededException;
-import com.tiger.cores.services.RedisRateLimiter;
+import com.tiger.cores.services.impl.RedisRateLimiter;
 import com.tiger.cores.utils.UserInfoUtil;
 
 import lombok.RequiredArgsConstructor;
