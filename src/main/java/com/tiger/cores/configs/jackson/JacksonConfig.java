@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Primary;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.tiger.common.utils.ObjectMapperUtil;
+import com.tiger.cores.utils.JsonUtil;
 
 @Configuration
 public class JacksonConfig {
@@ -22,7 +22,7 @@ public class JacksonConfig {
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
-        return ObjectMapperUtil.objectMapper();
+        return JsonUtil.objectMapper();
     }
 
     @Bean

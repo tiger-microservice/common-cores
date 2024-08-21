@@ -3,7 +3,6 @@ package com.tiger.cores.utils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.tiger.common.utils.ObjectMapperUtil;
 import com.tiger.cores.constants.AppConstants;
 import com.tiger.cores.constants.enums.Domain;
 import com.tiger.cores.dtos.UserPayloadDto;
@@ -23,6 +22,6 @@ public final class UserInfoUtil {
 
     public static UserPayloadDto getUserInfo() {
         String dataJson = SecurityUtils.getClaim(AppConstants.JwtKey.DATA);
-        return ObjectMapperUtil.castToObject(dataJson, UserPayloadDto.class);
+        return JsonUtil.castToObject(dataJson, UserPayloadDto.class);
     }
 }

@@ -33,7 +33,9 @@ public enum ErrorCode implements BaseError {
     RATE_LIMIT_ERROR(400, "Rate limit exceeded. Please wait before trying again.", HttpStatus.BAD_REQUEST),
 
     // account user
-    USER_EXIST_INVALID(400, "Username exists", HttpStatus.BAD_REQUEST);
+    USER_EXIST_INVALID(400, "Username exists", HttpStatus.BAD_REQUEST),
+
+    SECURE_INVALID(400, "Secure invalid", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

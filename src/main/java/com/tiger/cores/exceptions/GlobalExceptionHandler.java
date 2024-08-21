@@ -14,9 +14,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.tiger.common.utils.MessageUtils;
 import com.tiger.cores.configs.locale.Translator;
 import com.tiger.cores.dtos.responses.ApiResponse;
+import com.tiger.cores.utils.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +67,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = BusinessLogicException.class)
     ResponseEntity<ApiResponse<Object>> handlingBusinessLogicException(BusinessLogicException exception) {
+        BaseError errorCode = exception.getErrorCode();
+        return ResponseEntity.status(errorCode.getCode())
+                .body(ApiResponse.responseError(errorCode.getCode(), translator.toMessage(errorCode.getMessage())));
+    }
+
+    @ExceptionHandler(value = SecureLogicException.class)
+    ResponseEntity<ApiResponse<Object>> handlingSecureLogicException(SecureLogicException exception) {
         BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(errorCode.getCode())
                 .body(ApiResponse.responseError(errorCode.getCode(), translator.toMessage(errorCode.getMessage())));

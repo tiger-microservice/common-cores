@@ -1,5 +1,7 @@
 package com.tiger.cores.dtos.responses;
 
+import com.tiger.cores.encryptors.securities.impl.AESEncryptionKey;
+
 import lombok.*;
 
 @Data
@@ -12,8 +14,9 @@ public class InitSecureResponse {
     private String sgId;
 
     // Encrypted AES Key
-    private String eak;
+    private AESEncryptionKey eak;
 
     // Flag is secure
-    private boolean iss;
+    @Builder.Default
+    private boolean iss = false;
 }

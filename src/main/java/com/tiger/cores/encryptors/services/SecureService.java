@@ -1,125 +1,128 @@
-package com.tiger.cores.services.impl;
+package com.tiger.cores.encryptors.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tiger.cores.constants.AppConstants;
-import com.tiger.cores.dtos.responses.ApiResponse;
-import com.tiger.cores.dtos.responses.InitSecureResponse;
-import com.tiger.cores.entities.MasterConfig;
-import com.tiger.cores.exceptions.BusinessLogicException;
-import com.tiger.cores.exceptions.ErrorCode;
-import com.tiger.cores.repositories.ConfigRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.UUID;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import jakarta.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.tiger.cores.dtos.responses.InitSecureResponse;
+import com.tiger.cores.encryptors.constants.SecureConstants;
+import com.tiger.cores.encryptors.enums.AlgorithmEnum;
+import com.tiger.cores.encryptors.enums.CypherEnum;
+import com.tiger.cores.encryptors.securities.impl.AESEncryptionKey;
+import com.tiger.cores.exceptions.BusinessLogicException;
+import com.tiger.cores.exceptions.ErrorCode;
+import com.tiger.cores.exceptions.SecureLogicException;
+import com.tiger.cores.services.impl.RedisService;
+import com.tiger.cores.utils.JsonUtil;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SecureService {
 
-    private final ObjectMapper objectMapper;
+    @Value("${app.security.is-secure-enable:false}")
+    private Boolean isSecureEnable;
+
+    @Value("${app.security.time-millisecond:3000}")
+    private Long timeMillisecond;
+
     private final RedisService redisService;
-    private final ConfigRepository configRepository;
+    private SecureRandom secureRandom;
 
-    // Temporary storage
-    public static final String AES_KEY = "NFNsJ2Iox08ZlfDt9KiGLer7cNNoMRnqmtquSCEE0D0=";
-    public static final String IV = "3ccb508381494a44";
+    @PostConstruct
+    void init() {
+        this.secureRandom = new SecureRandom();
+    }
 
-    public ApiResponse<?> initSecureProcess(String data) {
+    public InitSecureResponse initSecureProcess(String data) {
         try {
             // Decode and create public key object
             byte[] keyBytes = Base64.getDecoder().decode(data);
             X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            KeyFactory keyFactory = KeyFactory.getInstance(AlgorithmEnum.RSA.getValue());
             PublicKey publicKey = keyFactory.generatePublic(spec);
 
             // Generate AES key
-            String aesKey = SecureService.generateKey();
-
-            String initSecureId = UUID.randomUUID().toString();
-
-            // Save AES key to Redis
-            redisService.put(initSecureId, aesKey, 30000);
-
-            MasterConfig config = configRepository.findByConfigName(AppConstants.FLAG_SECURE);
+            String transactionKey = UUID.randomUUID().toString();
+            AESEncryptionKey aesEncryptionKey = genAESEncryptionKey();
 
             // Encrypt response with RSA public key
             InitSecureResponse response = InitSecureResponse.builder()
-                    .iss(config != null && "ON".equals(config.getConfigValue()))
-                    .sgId(initSecureId)
-                    .eak(aesKey)
+                    .iss(isSecureEnable)
+                    .sgId(transactionKey)
+                    .eak(aesEncryptionKey)
                     .build();
 
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            byte[] encryptedData = cipher.doFinal(objectMapper.writeValueAsBytes(response));
-            String encryptedDataBase64 = Base64.getEncoder().encodeToString(encryptedData);
+            // Save AES key to Redis
+            redisService.put(
+                    SecureConstants.SECURE_KEY + transactionKey, JsonUtil.castToString(response), timeMillisecond);
+
+            // encrypt response
+            if (isSecureEnable) {
+                encryptRSABase64(response, publicKey);
+            }
 
             // Return encrypted data
-            return ApiResponse.<String>builder().data(encryptedDataBase64).build();
+            return response;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("[initSecureProcess] error {}", e.getMessage(), e);
             throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
 
-    /**
-     * Used to decrypt request body
-     */
-    public String decryptBody(String aesKey, String encryptedData, String sgId) {
+    private void encryptRSABase64(InitSecureResponse dataObject, PublicKey publicKey) {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(aesKey);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            IvParameterSpec ivParams = new IvParameterSpec(sgId.substring(0, 16).getBytes(StandardCharsets.UTF_8));
-            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParams);
-            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
-            return new String(decryptedBytes, StandardCharsets.UTF_8);
+            AESEncryptionKey aesEncryptionKey = dataObject.getEak();
+            String encryptKey = rsaEncrypt(aesEncryptionKey.getK(), publicKey);
+            String encryptIv = rsaEncrypt(aesEncryptionKey.getI(), publicKey);
+            aesEncryptionKey.setK(encryptKey);
+            aesEncryptionKey.setI(encryptIv);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("[encryptRSABase64] error {}", e.getMessage(), e);
             throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
 
-    /**
-     * Used to encrypt response body
-     */
-    public String encryptBody(String aesKey, Object data, String sgId) {
+    public String rsaEncrypt(String data, PublicKey publicKey) {
         try {
-            byte[] aesKeyBytes = Base64.getDecoder().decode(aesKey);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(aesKeyBytes, "AES");
-            IvParameterSpec ivParams = new IvParameterSpec(sgId.substring(0, 16).getBytes(StandardCharsets.UTF_8));
-            Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            aesCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParams);
-            byte[] responseBytes = objectMapper.writeValueAsBytes(data);
-            byte[] encryptedResponseBytes = aesCipher.doFinal(responseBytes);
-            return Base64.getEncoder().encodeToString(encryptedResponseBytes);
+            Cipher cipher = Cipher.getInstance(AlgorithmEnum.RSA.getValue());
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] encryptedData = cipher.doFinal(data.getBytes());
+            return Base64.getEncoder().encodeToString(encryptedData);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+            log.error("[rsaEncrypt] error {}", e.getMessage(), e);
+            throw new SecureLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
 
+    // Temporary storage
+    public static final String AES_KEY = "NFNsJ2Iox08ZlfDt9KiGLer7cNNoMRnqmtquSCEE0D0=";
+    public static final String IV = "3ccb508381494a44";
     /**
      * Used to encrypt string fields
      */
     public static String encrypt(String data) {
         try {
             byte[] aesKeyBytes = Base64.getDecoder().decode(AES_KEY);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(aesKeyBytes, "AES");
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(aesKeyBytes, AlgorithmEnum.AES.getValue());
+            Cipher cipher = Cipher.getInstance(CypherEnum.AES_VALUE.getValue());
             IvParameterSpec ivParams = new IvParameterSpec(IV.getBytes(StandardCharsets.UTF_8));
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParams);
             byte[] encryptedData = cipher.doFinal(data.getBytes());
@@ -136,8 +139,8 @@ public class SecureService {
     public static String decrypt(String encryptedData) {
         try {
             byte[] keyBytes = Base64.getDecoder().decode(AES_KEY);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, AlgorithmEnum.AES.getValue());
+            Cipher cipher = Cipher.getInstance(CypherEnum.AES_VALUE.getValue());
             IvParameterSpec ivParams = new IvParameterSpec(IV.getBytes(StandardCharsets.UTF_8));
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParams);
             byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
@@ -151,13 +154,34 @@ public class SecureService {
     /**
      * Generate AES key
      */
-    public static String generateKey() {
+    public static String genAESKeyV1() {
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(AlgorithmEnum.AES.getValue());
             keyGenerator.init(256);
             return Base64.getEncoder().encodeToString(keyGenerator.generateKey().getEncoded());
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+    }
+
+    private AESEncryptionKey genAESEncryptionKey() {
+        return AESEncryptionKey.builder().k(genAESKeyV2()).i(generateRandomIv()).build();
+    }
+
+    private String genAESKeyV2() {
+        byte[] secureRandomKeyBytes = new byte[32];
+        this.secureRandom.nextBytes(secureRandomKeyBytes);
+        return Base64.getEncoder().encodeToString(secureRandomKeyBytes);
+    }
+
+    private String generateRandomIv() {
+        try {
+            byte[] iv =
+                    new byte[Cipher.getInstance(CypherEnum.AES_VALUE.getValue()).getBlockSize()];
+            this.secureRandom.nextBytes(iv);
+            return Base64.getEncoder().encodeToString(iv);
+        } catch (Exception e) {
             throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
