@@ -29,7 +29,7 @@ public class LocalConfig {
     @Bean
     public ResourceBundleMessageSource bundleMessageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("i18n/messages");
+        messageSource.setBasenames("i18n/messages", "i18n/core-messages");
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setCacheSeconds(3600);
         messageSource.setDefaultLocale(Locale.US);

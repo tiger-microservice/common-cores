@@ -7,44 +7,23 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode implements BaseError {
-    INVALID_KEY(400, "Invalid key", HttpStatus.BAD_REQUEST),
-    RESOURCE_NOT_FOUND(404, "Resource not found", HttpStatus.NOT_FOUND),
-    BEAN_NOT_DEFINED(404, "MSG00003", HttpStatus.NOT_FOUND),
+    INVALID_KEY("MCM00001", HttpStatus.BAD_REQUEST),
+    RESOURCE_NOT_FOUND("MCM00006", HttpStatus.NOT_FOUND),
+    BEAN_NOT_DEFINED("MCM00002", HttpStatus.NOT_FOUND),
+    UNAUTHENTICATED("MCM00003", HttpStatus.UNAUTHORIZED),
+    USER_NOT_EXISTED("MCM00008", HttpStatus.FORBIDDEN),
+    RATE_LIMIT_ERROR("MCM00007", HttpStatus.BAD_REQUEST),
+    SECURE_INVALID("MCM00004", HttpStatus.BAD_REQUEST),
+    UNCATEGORIZED_EXCEPTION("MCM00009", HttpStatus.INTERNAL_SERVER_ERROR),
+    USER_DONT_HAVE_PERMISSION("MCM00005", HttpStatus.FORBIDDEN),
+    TOKEN_INVALID("MCM00010", HttpStatus.UNAUTHORIZED);
 
-    USER_NOT_EXISTED(404, "User not existed", HttpStatus.FORBIDDEN),
-    USERNAME_INVALID(403, "Username invalid format rule", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(401, "Unauthorized", HttpStatus.UNAUTHORIZED),
-    UNCATEGORIZED_EXCEPTION(500, "Server error", HttpStatus.INTERNAL_SERVER_ERROR),
-    EMAIL_INVALID(400, "Email max length invalid", HttpStatus.BAD_REQUEST),
-    EMAIL_FORMAT_INVALID(400, "Email invalid format", HttpStatus.BAD_REQUEST),
-    EMAIL_EMPTY_INVALID(400, "Email is not empty", HttpStatus.BAD_REQUEST),
-    PASSWORD_MAXLENGTH_INVALID(400, "Password max length invalid", HttpStatus.BAD_REQUEST),
-
-    // permission
-    PERMISSION_CODE_INVALID(400, "Permission code invalid", HttpStatus.BAD_REQUEST),
-    PERMISSION_NAME_MAXLENGTH_INVALID(400, "Permission name max length invalid", HttpStatus.BAD_REQUEST),
-    PERMISSION_DESCRIPTION_MAXLENGTH_INVALID(400, "Permission description max length invalid", HttpStatus.BAD_REQUEST),
-
-    // role
-    ROLE_NAME_MAXLENGTH_INVALID(400, "Role name max length invalid", HttpStatus.BAD_REQUEST),
-    ROLE_DESCRIPTION_MAXLENGTH_INVALID(400, "Role description max length invalid", HttpStatus.BAD_REQUEST),
-    ROLE_CODE_INVALID(400, "Role code invalid", HttpStatus.BAD_REQUEST),
-
-    RATE_LIMIT_ERROR(400, "Rate limit exceeded. Please wait before trying again.", HttpStatus.BAD_REQUEST),
-
-    // account user
-    USER_EXIST_INVALID(400, "Username exists", HttpStatus.BAD_REQUEST),
-
-    SECURE_INVALID(400, "Secure invalid", HttpStatus.BAD_REQUEST);
-
-    ErrorCode(int code, String message, HttpStatusCode statusCode) {
-        this.code = code;
-        this.message = message;
+    ErrorCode(String messageCode, HttpStatusCode statusCode) {
+        this.messageCode = messageCode;
         this.statusCode = statusCode;
     }
 
-    private int code;
-    private String message;
+    private String messageCode;
     private HttpStatusCode statusCode;
 
     @Override

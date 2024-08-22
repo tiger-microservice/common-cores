@@ -17,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tiger.cores.configs.locale.Translator;
 import com.tiger.cores.constants.AppConstants;
 
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,9 @@ import lombok.extern.slf4j.Slf4j;
                 false) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
 public class SecurityConfig {
 
-    final CustomJwtDecoder customJwtDecoder;
+    final Translator translator;
     final ObjectMapper objectMapper;
+    final CustomJwtDecoder customJwtDecoder;
     final SecurityProperties securityProperties;
 
     @Value("${app.cross-origin:false}")
@@ -59,7 +61,7 @@ public class SecurityConfig {
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint(objectMapper)));
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint(objectMapper, translator)));
 
         // HttpSecurity config cors
         log.info(crossOrigin ? "Enable cross origin" : "Off cross origin");

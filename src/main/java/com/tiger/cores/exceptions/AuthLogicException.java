@@ -8,7 +8,7 @@ public class AuthLogicException extends RuntimeException {
     private final BaseError errorCode;
 
     public AuthLogicException(BaseError errorCode) {
-        super(errorCode.getMessage());
+        super(errorCode.getMessageCode());
         this.errorCode = errorCode;
     }
 }

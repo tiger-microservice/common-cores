@@ -59,31 +59,33 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest()
                 .body(ApiResponse.responseError(
-                        errorCode.getCode(),
+                        errorCode.getHttpStatusCode().value(),
                         Objects.nonNull(attributes)
-                                ? MessageUtils.mapAttributes(errorCode.getMessage(), attributes)
-                                : errorCode.getMessage()));
+                                ? MessageUtils.mapAttributes(errorCode.getMessageCode(), attributes)
+                                : errorCode.getMessageCode()));
     }
 
     @ExceptionHandler(value = BusinessLogicException.class)
     ResponseEntity<ApiResponse<Object>> handlingBusinessLogicException(BusinessLogicException exception) {
         BaseError errorCode = exception.getErrorCode();
-        return ResponseEntity.status(errorCode.getCode())
-                .body(ApiResponse.responseError(errorCode.getCode(), translator.toMessage(errorCode.getMessage())));
+        return ResponseEntity.status(errorCode.getHttpStatusCode().value())
+                .body(ApiResponse.responseError(
+                        errorCode.getHttpStatusCode().value(), translator.toMessage(errorCode.getMessageCode())));
     }
 
     @ExceptionHandler(value = SecureLogicException.class)
     ResponseEntity<ApiResponse<Object>> handlingSecureLogicException(SecureLogicException exception) {
         BaseError errorCode = exception.getErrorCode();
-        return ResponseEntity.status(errorCode.getCode())
-                .body(ApiResponse.responseError(errorCode.getCode(), translator.toMessage(errorCode.getMessage())));
+        return ResponseEntity.status(errorCode.getHttpStatusCode().value())
+                .body(ApiResponse.responseError(
+                        errorCode.getHttpStatusCode().value(), translator.toMessage(errorCode.getMessageCode())));
     }
 
     @ExceptionHandler(value = AuthLogicException.class)
     ResponseEntity<ApiResponse<Object>> handlingAuthLogicException(AuthLogicException exception) {
         BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.responseError(errorCode.getCode(), translator.toMessage(exception.getMessage())));
+                .body(ApiResponse.responseError(errorCode.getHttpStatusCode().value(), exception.getMessage()));
     }
 
     @ExceptionHandler(value = Exception.class)

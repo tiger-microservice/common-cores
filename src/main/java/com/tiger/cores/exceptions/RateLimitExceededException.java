@@ -7,7 +7,7 @@ public class RateLimitExceededException extends RuntimeException {
     private final BaseError errorCode;
 
     public RateLimitExceededException(BaseError errorCode) {
-        super(errorCode.getMessage());
+        super(errorCode.getMessageCode());
         this.errorCode = errorCode;
     }
 }

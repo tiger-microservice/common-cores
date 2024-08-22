@@ -8,7 +8,7 @@ public class SecureLogicException extends RuntimeException {
     private final BaseError errorCode;
 
     public SecureLogicException(BaseError errorCode) {
-        super(errorCode.getMessage());
+        super(errorCode.getMessageCode());
         this.errorCode = errorCode;
     }
 }

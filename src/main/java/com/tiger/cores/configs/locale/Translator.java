@@ -18,7 +18,11 @@ public class Translator {
     }
 
     public String toMessage(String msgCode, String... args) {
-        Locale locale = LocaleContextHolder.getLocale();
-        return messageSource.getMessage(msgCode, args, locale);
+        try {
+            Locale locale = LocaleContextHolder.getLocale();
+            return messageSource.getMessage(msgCode, args, locale);
+        } catch (Exception e) {
+            return msgCode;
+        }
     }
 }
