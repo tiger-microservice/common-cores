@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,7 @@ import com.tiger.cores.filters.TimezoneFilter;
 @Component
 public class TimeZoneAspect {
 
-    @Around("execution(* com.tiger.*.controllers.*.*..*(..))")
+    //    @Around("execution(* com.tiger.*.controllers.*.*..*(..))")
     public Object beforeAdvice(ProceedingJoinPoint joinPoint) {
         try {
             Object result = joinPoint.proceed();
