@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse<Object>> handlingAuthLogicException(AuthLogicException exception) {
         BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.responseError(errorCode.getHttpStatusCode().value(), exception.getMessage()));
+                .body(ApiResponse.responseError(errorCode.getHttpStatusCode().value(), translator.toMessage(errorCode.getMessageCode())));
     }
 
     @ExceptionHandler(value = Exception.class)

@@ -8,7 +8,7 @@ public final class AppConstants {
 
     public static final String AUTHORIZATION = "Authorization";
 
-    public static final String ACCEPT_LANGUAGE = "Accept-Language";
+    public static final String ACCEPT_LANGUAGE = "app-accept-language";
 
     public static final String APP_REQUEST_ID = "App-Request-Id";
 
@@ -24,11 +24,8 @@ public final class AppConstants {
 
     public static final String APP_TRANSACTION_KEY = "app-transaction-key";
 
-    public static final String FLAG_SECURE = "FLAG_SECURE";
-
     public static class JwtKey {
-        public static final String SCOPE =
-                "scope"; // refer file JwtGrantedAuthoritiesConverter, default key -> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES
+        public static final String SCOPE = "scope"; // refer file JwtGrantedAuthoritiesConverter, default key -> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES
         // = Arrays.asList("scope", "scp")
         public static final String TOKEN_TYPE = "token_type";
         public static final String SESSION_ID = "session_id";
