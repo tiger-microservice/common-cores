@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -20,29 +21,26 @@ import com.tiger.cores.filters.TimezoneFilter;
 @Component
 public class TimeZoneAspect {
 
-    //    @Around("execution(* com.tiger.*.controllers.*.*..*(..))")
-    public Object beforeAdvice(ProceedingJoinPoint joinPoint) {
-        try {
-            Object result = joinPoint.proceed();
-
-            if (result != null) {
-                if (result instanceof ApiResponse<?>) {
-                    ApiResponse response = (ApiResponse) result;
-                    Object data = response.getData();
-                    if (data != null) {
-                        processTimeZoneConversion(data);
-                    }
+    @Around("execution(* com.tiger.*.controllers.*.*..*(..))")
+    public Object beforeAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object result = joinPoint.proceed();
+        if (result != null) {
+            if (result instanceof ApiResponse<?>) {
+                ApiResponse response = (ApiResponse) result;
+                Object data = response.getData();
+                if (data != null) {
+                    processTimeZoneConversion(data);
                 }
             }
-
-            return result;
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
         }
+        return result;
     }
 
     private void processTimeZoneConversion(Object obj) throws IllegalAccessException {
         if (obj == null) return;
+
+        Class<?> clazz = obj.getClass();
+        if (isWrapperType(clazz)) return;
 
         if (obj instanceof Collection) {
             for (Object element : (Collection<?>) obj) {
@@ -58,10 +56,6 @@ public class TimeZoneAspect {
                 processTimeZoneConversion(element);
             }
         } else {
-            Class<?> clazz = obj.getClass();
-
-            if (isWrapperType(clazz)) return;
-
             for (Field field : clazz.getDeclaredFields()) {
                 field.setAccessible(true);
                 Object value = field.get(obj);
@@ -83,6 +77,7 @@ public class TimeZoneAspect {
     }
 
     private boolean isWrapperType(Class<?> clazz) {
+        var packageName = clazz.getCanonicalName();
         return clazz.equals(Boolean.class)
                 || clazz.equals(Integer.class)
                 || clazz.equals(Character.class)
@@ -91,6 +86,7 @@ public class TimeZoneAspect {
                 || clazz.equals(Double.class)
                 || clazz.equals(Long.class)
                 || clazz.equals(Float.class)
-                || clazz.equals(String.class);
+                || clazz.equals(String.class)
+                || (!packageName.contains("vn.tiger") && !packageName.contains("com.tiger"));
     }
 }

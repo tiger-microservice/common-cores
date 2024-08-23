@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode implements BaseError {
-    INVALID_KEY("MCM00001", HttpStatus.BAD_REQUEST),
+    INVALID_KEY("MCM00001", HttpStatus.UNAUTHORIZED),
     RESOURCE_NOT_FOUND("MCM00006", HttpStatus.NOT_FOUND),
     BEAN_NOT_DEFINED("MCM00002", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED("MCM00003", HttpStatus.UNAUTHORIZED),
@@ -16,7 +16,7 @@ public enum ErrorCode implements BaseError {
     SECURE_INVALID("MCM00004", HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION("MCM00009", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_DONT_HAVE_PERMISSION("MCM00005", HttpStatus.FORBIDDEN),
-    TOKEN_INVALID("MCM00010", HttpStatus.UNAUTHORIZED);
+    TOKEN_INVALID("MCM00010", HttpStatus.FORBIDDEN);
 
     ErrorCode(String messageCode, HttpStatusCode statusCode) {
         this.messageCode = messageCode;
