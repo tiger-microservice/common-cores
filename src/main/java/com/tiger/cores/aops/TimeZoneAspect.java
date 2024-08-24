@@ -21,7 +21,7 @@ import com.tiger.cores.filters.TimezoneFilter;
 @Component
 public class TimeZoneAspect {
 
-    @Around("execution(* com.tiger.*.controllers.*.*..*(..))")
+//    @Around("execution(* com.tiger.*.controllers.*.*..*(..))")
     public Object beforeAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = joinPoint.proceed();
         if (result != null) {
