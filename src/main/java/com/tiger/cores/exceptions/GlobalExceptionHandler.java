@@ -30,15 +30,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = RateLimitExceededException.class)
     ResponseEntity<ApiResponse<Object>> handlingRateLimitExceededException(RateLimitExceededException exception) {
-        return ResponseEntity.status(LOCKED).body(ApiResponse.responseError(LOCKED.value(),
-                LOCKED.name(),
-                exception.getMessage()));
+        return ResponseEntity.status(LOCKED)
+                .body(ApiResponse.responseError(LOCKED.value(), LOCKED.name(), exception.getMessage()));
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
     ResponseEntity<ApiResponse<Object>> handlingAccessDeniedException(AccessDeniedException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.responseError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.name(), exception.getMessage()));
+                .body(ApiResponse.responseError(
+                        HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.name(), exception.getMessage()));
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -92,7 +92,8 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse<Object>> handlingAuthLogicException(AuthLogicException exception) {
         BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.responseError(errorCode.getHttpStatusCode().value(),
+                .body(ApiResponse.responseError(
+                        errorCode.getHttpStatusCode().value(),
                         errorCode.getMessageCode(),
                         translator.toMessage(errorCode.getMessageCode())));
     }
