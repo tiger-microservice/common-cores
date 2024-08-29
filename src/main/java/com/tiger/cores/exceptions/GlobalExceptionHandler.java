@@ -30,13 +30,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = RateLimitExceededException.class)
     ResponseEntity<ApiResponse<Object>> handlingRateLimitExceededException(RateLimitExceededException exception) {
-        return ResponseEntity.status(LOCKED).body(ApiResponse.responseError(LOCKED.value(), exception.getMessage()));
+        return ResponseEntity.status(LOCKED).body(ApiResponse.responseError(LOCKED.value(),
+                LOCKED.name(),
+                exception.getMessage()));
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
     ResponseEntity<ApiResponse<Object>> handlingAccessDeniedException(AccessDeniedException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.responseError(HttpStatus.FORBIDDEN.value(), exception.getMessage()));
+                .body(ApiResponse.responseError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.name(), exception.getMessage()));
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -60,6 +62,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.responseError(
                         errorCode.getHttpStatusCode().value(),
+                        errorCode.getMessageCode(),
                         Objects.nonNull(attributes)
                                 ? MessageUtils.mapAttributes(errorCode.getMessageCode(), attributes)
                                 : errorCode.getMessageCode()));
@@ -70,7 +73,9 @@ public class GlobalExceptionHandler {
         BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(errorCode.getHttpStatusCode().value())
                 .body(ApiResponse.responseError(
-                        errorCode.getHttpStatusCode().value(), translator.toMessage(errorCode.getMessageCode())));
+                        errorCode.getHttpStatusCode().value(),
+                        errorCode.getMessageCode(),
+                        translator.toMessage(errorCode.getMessageCode())));
     }
 
     @ExceptionHandler(value = SecureLogicException.class)
@@ -78,14 +83,18 @@ public class GlobalExceptionHandler {
         BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(errorCode.getHttpStatusCode().value())
                 .body(ApiResponse.responseError(
-                        errorCode.getHttpStatusCode().value(), translator.toMessage(errorCode.getMessageCode())));
+                        errorCode.getHttpStatusCode().value(),
+                        errorCode.getMessageCode(),
+                        translator.toMessage(errorCode.getMessageCode())));
     }
 
     @ExceptionHandler(value = AuthLogicException.class)
     ResponseEntity<ApiResponse<Object>> handlingAuthLogicException(AuthLogicException exception) {
         BaseError errorCode = exception.getErrorCode();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.responseError(errorCode.getHttpStatusCode().value(), translator.toMessage(errorCode.getMessageCode())));
+                .body(ApiResponse.responseError(errorCode.getHttpStatusCode().value(),
+                        errorCode.getMessageCode(),
+                        translator.toMessage(errorCode.getMessageCode())));
     }
 
     @ExceptionHandler(value = Exception.class)
@@ -93,6 +102,8 @@ public class GlobalExceptionHandler {
         log.error("[handlingException] error {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.responseError(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
     }
 }

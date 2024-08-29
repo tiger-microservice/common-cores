@@ -11,6 +11,7 @@ public class ApiResponse<T> {
 
     private int status;
     private T data;
+    private String messageCode;
     private String message;
 
     public static <T> ApiResponse<T> responseOK(T data) {
@@ -21,7 +22,11 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder().status(HttpStatus.OK.value()).build();
     }
 
-    public static <T> ApiResponse<T> responseError(int code, String message) {
-        return ApiResponse.<T>builder().status(code).message(message).build();
+    public static <T> ApiResponse<T> responseError(int status, String messageCode, String message) {
+        return ApiResponse.<T>builder()
+                .status(status)
+                .messageCode(messageCode)
+                .message(message)
+                .build();
     }
 }

@@ -35,6 +35,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         ApiResponse<?> apiResponse = ApiResponse.responseError(
                 errorCode.getHttpStatusCode().value(),
+                errorCode.getMessageCode(),
                 this.translator.toMessage(errorCode.getMessageCode()));
 
         // handler response format when request unauthorized
