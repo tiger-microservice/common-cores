@@ -6,9 +6,11 @@ import lombok.Getter;
 public class BusinessLogicException extends RuntimeException {
 
     private final BaseError errorCode;
+    private final Object[] params;
 
-    public BusinessLogicException(BaseError errorCode) {
+    public BusinessLogicException(BaseError errorCode, Object... params) {
         super(errorCode.getMessageCode());
         this.errorCode = errorCode;
+        this.params = params;
     }
 }

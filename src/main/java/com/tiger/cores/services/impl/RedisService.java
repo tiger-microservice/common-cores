@@ -41,7 +41,7 @@ public class RedisService implements CacheService {
 
     public Long decrementExpireTime(String key, long milliSeconds) {
         Long result = increment(key);
-        System.out.println("result::" + result);
+        log.info("[decrementExpireTime] result {}", result);
         redisTemplate.expire(key, milliSeconds, TimeUnit.MILLISECONDS);
         return result;
     }
@@ -49,8 +49,8 @@ public class RedisService implements CacheService {
     @Override
     public Long getValue(String key) {
         Object andExpire = redisTemplate.opsForValue().get(key);
-        System.out.println("andExpire" + andExpire);
-        return 0L;
+        log.info("[getValue] andExpire {}", andExpire);
+        return Long.parseLong(andExpire + "");
     }
 
     @Override

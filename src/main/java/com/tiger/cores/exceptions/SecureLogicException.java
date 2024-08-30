@@ -6,9 +6,11 @@ import lombok.Getter;
 public class SecureLogicException extends RuntimeException {
 
     private final BaseError errorCode;
+    private final Object[] params;
 
-    public SecureLogicException(BaseError errorCode) {
+    public SecureLogicException(BaseError errorCode, Object... params) {
         super(errorCode.getMessageCode());
         this.errorCode = errorCode;
+        this.params = params;
     }
 }

@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.responseError(
                         errorCode.getHttpStatusCode().value(),
                         errorCode.getMessageCode(),
-                        translator.toMessage(errorCode.getMessageCode())));
+                        translator.toMessage(errorCode.getMessageCode(), exception.getParams())));
     }
 
     @ExceptionHandler(value = SecureLogicException.class)
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.responseError(
                         errorCode.getHttpStatusCode().value(),
                         errorCode.getMessageCode(),
-                        translator.toMessage(errorCode.getMessageCode())));
+                        translator.toMessage(errorCode.getMessageCode(), exception.getParams())));
     }
 
     @ExceptionHandler(value = AuthLogicException.class)
@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.responseError(
                         errorCode.getHttpStatusCode().value(),
                         errorCode.getMessageCode(),
-                        translator.toMessage(errorCode.getMessageCode())));
+                        translator.toMessage(errorCode.getMessageCode(), exception.getParams())));
     }
 
     @ExceptionHandler(value = Exception.class)
