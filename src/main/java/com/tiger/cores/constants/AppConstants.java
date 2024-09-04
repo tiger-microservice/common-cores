@@ -24,6 +24,8 @@ public final class AppConstants {
 
     public static final String APP_TRANSACTION_KEY = "app-transaction-key";
 
+    public static final String START = "*";
+
     public static class JwtKey {
         public static final String SCOPE =
                 "scope"; // refer file JwtGrantedAuthoritiesConverter, default key -> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES
