@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.tiger.cores.constants.AppConstants;
 import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -18,6 +17,7 @@ import org.springframework.util.StopWatch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiger.cores.configs.logging.LoggingConfig;
 import com.tiger.cores.configs.logging.LoggingProperties;
+import com.tiger.cores.constants.AppConstants;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +67,8 @@ public class LoggingAspect {
                 map.put(this.createParamKey(parameterTypes[i], parameterNames[i]), obj);
             } else {
                 final String paramName = parameterNames[i];
-                if (Arrays.stream(this.loggingProperties.getMarkKeys()).anyMatch(item -> item.equalsIgnoreCase(paramName))) {
+                if (Arrays.stream(this.loggingProperties.getMarkKeys())
+                        .anyMatch(item -> item.equalsIgnoreCase(paramName))) {
                     map.put(paramName, AppConstants.START);
                 }
             }
@@ -116,6 +117,7 @@ public class LoggingAspect {
         }
 
         // replace like term
+        // "\"\\w*" + key + "\\w*\":\"", "\",|\"}"
         for (String key : loggingProperties.getMarkKeys()) {
             json = this.replaceBetween(json, "\"\\w*" + key + "\\w+\":\"", "\",|\"}", AppConstants.START);
         }
