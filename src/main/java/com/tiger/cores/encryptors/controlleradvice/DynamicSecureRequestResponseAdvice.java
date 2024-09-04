@@ -105,7 +105,6 @@ public class DynamicSecureRequestResponseAdvice extends RequestBodyAdviceAdapter
         }
 
         String decryptRequestStr = encryptorHandler.decrypt(bodyRaw);
-        log.info("[beforeBodyRead] value {}", decryptRequestStr);
         byte[] data = StringUtils.isNoneBlank(decryptRequestStr) ? decryptRequestStr.getBytes() : new byte[] {};
 
         return new MappingJacksonInputMessage(new ByteArrayInputStream(data), httpHeaders);
