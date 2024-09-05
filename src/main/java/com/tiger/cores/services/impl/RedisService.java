@@ -53,16 +53,15 @@ public class RedisService implements CacheService {
     }
 
     @Override
-    public Long getValue(String key) {
-        Object andExpire = redisTemplate.opsForValue().get(key);
-        log.info("[getValue] andExpire {}", andExpire);
-        return Long.parseLong(andExpire + "");
+    public Object getValue(String key) {
+        Object value = redisTemplate.opsForValue().get(key);
+        log.info("[getValue] andExpire {}", value);
+        return value;
     }
 
     @Override
-    public Long getValue(String key, long milliSeconds) {
-        Object andExpire = redisTemplate.opsForValue().getAndExpire(key, milliSeconds, TimeUnit.MILLISECONDS);
-        return (Long) andExpire;
+    public Object getAndExpireTime(String key, long milliSeconds) {
+        return redisTemplate.opsForValue().getAndExpire(key, milliSeconds, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -90,7 +89,7 @@ public class RedisService implements CacheService {
             return funcCallback.apply(input);
         } finally {
             // release lock
-            getValue(key, 0);
+            expireTime(key, 0);
         }
     }
 }

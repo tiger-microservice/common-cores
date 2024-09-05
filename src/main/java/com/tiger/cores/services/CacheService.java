@@ -13,9 +13,9 @@ public interface CacheService {
 
     Long decrementExpireTime(String key, long milliSeconds);
 
-    Long getValue(String key);
+    Object getValue(String key);
 
-    Long getValue(String key, long milliSeconds);
+    Object getAndExpireTime(String key, long milliSeconds);
 
     void put(String key, Object value, long milliSeconds);
 
