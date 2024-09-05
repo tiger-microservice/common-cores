@@ -1,5 +1,7 @@
 package com.tiger.cores.services;
 
+import java.util.function.Function;
+
 public interface CacheService {
     Long increment(String key);
 
@@ -18,4 +20,6 @@ public interface CacheService {
     void put(String key, Object value, long milliSeconds);
 
     Object get(String key);
+
+    <T, R> R lock(String key, T input, Function<T, R> funcCallback, long milliSeconds);
 }

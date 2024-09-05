@@ -16,7 +16,9 @@ public enum ErrorCode implements BaseError {
     SECURE_INVALID("MCM00004", HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION("MCM00009", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_DONT_HAVE_PERMISSION("MCM00005", HttpStatus.FORBIDDEN),
-    TOKEN_INVALID("MCM00010", HttpStatus.FORBIDDEN);
+    TOKEN_INVALID("MCM00010", HttpStatus.FORBIDDEN),
+    MAX_TERMS_RETRY("MCM00011", HttpStatus.BAD_REQUEST),
+    ;
 
     ErrorCode(String messageCode, HttpStatusCode statusCode) {
         this.messageCode = messageCode;
