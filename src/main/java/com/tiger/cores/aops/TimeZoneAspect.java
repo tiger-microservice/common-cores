@@ -89,6 +89,6 @@ public class TimeZoneAspect {
                 || clazz.equals(Long.class)
                 || clazz.equals(Float.class)
                 || clazz.equals(String.class)
-                || (!packageName.contains("vn.tiger") && !packageName.contains("com.tiger"));
+                || !packageName.contains(".tiger.");
     }
 }
