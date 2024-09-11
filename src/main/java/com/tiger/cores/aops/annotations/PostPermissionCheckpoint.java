@@ -7,9 +7,9 @@ import com.tiger.cores.constants.enums.CheckPointType;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-@Repeatable(PostPermissionEndpoints.class)
+@Repeatable(PostPermissionCheckpoints.class)
 @Documented
-public @interface PostPermissionEndpoint {
+public @interface PostPermissionCheckpoint {
     CheckPointType type();
 
     String value() default "";

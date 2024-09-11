@@ -7,7 +7,9 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -20,7 +22,7 @@ import com.tiger.cores.filters.TimezoneFilter;
 @Component
 public class TimeZoneAspect {
 
-    //    @Around("execution(* com.tiger.*.controllers.*.*..*(..))")
+    @Around("execution(* com.tiger.*.controllers.*.*..*(..)) || execution(* vn.tiger.*.controllers.*.*..*(..))")
     public Object beforeAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = joinPoint.proceed();
         if (result != null) {
@@ -39,7 +41,6 @@ public class TimeZoneAspect {
         if (obj == null) return;
 
         Class<?> clazz = obj.getClass();
-        if (isWrapperType(clazz)) return;
 
         if (obj instanceof Collection) {
             for (Object element : (Collection<?>) obj) {
@@ -55,6 +56,8 @@ public class TimeZoneAspect {
                 processTimeZoneConversion(element);
             }
         } else {
+            if (isWrapperType(clazz)) return;
+
             for (Field field : clazz.getDeclaredFields()) {
                 field.setAccessible(true);
                 Object value = field.get(obj);
@@ -62,11 +65,11 @@ public class TimeZoneAspect {
                 if (field.isAnnotationPresent(ConvertTimeZone.class) && value instanceof LocalDateTime localDateTime) {
                     ConvertTimeZone annotation = field.getAnnotation(ConvertTimeZone.class);
                     String clientTimeZone = TimezoneFilter.getTimeZone();
+                    if (Strings.isBlank(clientTimeZone)) return;
 
                     ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(annotation.fromZone()));
                     ZonedDateTime convertedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.of(clientTimeZone));
                     field.set(obj, convertedDateTime.toLocalDateTime());
-
                 } else if (value != null && !field.getType().isPrimitive() && !isWrapperType(field.getType())) {
                     // Nếu field là một object không phải primitive type thì tiếp tục xử lý đệ quy
                     processTimeZoneConversion(value);

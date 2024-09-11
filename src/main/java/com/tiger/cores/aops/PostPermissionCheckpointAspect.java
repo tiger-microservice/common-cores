@@ -4,7 +4,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
-import com.tiger.cores.aops.annotations.PrePermissionEndpoint;
+import com.tiger.cores.aops.annotations.PrePermissionCheckpoint;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,10 +13,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Aspect
-public class PostPermissionEndpointAspect extends AbstractAspect {
+public class PostPermissionCheckpointAspect extends AbstractAspect {
 
-    @Before("@annotation(prePermissionEndpoint)")
-    public void prePermissionExecute(final JoinPoint joinPoint, PrePermissionEndpoint prePermissionEndpoint)
+    @Before("@annotation(prePermissionCheckpoint)")
+    public void prePermissionExecute(final JoinPoint joinPoint, PrePermissionCheckpoint prePermissionCheckpoint)
             throws Throwable {
         log.info("[prePermissionExecute] has been called for method {}", getMethodNames(joinPoint));
     }

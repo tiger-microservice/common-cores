@@ -6,6 +6,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface PrePermissionEndpoints {
-    PrePermissionEndpoint[] value();
+public @interface PostPermissionCheckpoints {
+    PostPermissionCheckpoint[] value();
 }

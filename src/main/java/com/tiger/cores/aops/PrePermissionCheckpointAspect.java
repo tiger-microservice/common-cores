@@ -5,7 +5,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import com.tiger.cores.aops.annotations.PostPermissionEndpoint;
+import com.tiger.cores.aops.annotations.PostPermissionCheckpoint;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,10 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Aspect
 @Component
-public class PrePermissionEndpointAspect extends AbstractAspect {
+public class PrePermissionCheckpointAspect extends AbstractAspect {
 
-    @AfterReturning("@annotation(postPermissionEndpoint)")
-    public void postPermissionExecute(final JoinPoint joinPoint, PostPermissionEndpoint postPermissionEndpoint)
+    @AfterReturning("@annotation(postPermissionCheckpoint)")
+    public void postPermissionExecute(final JoinPoint joinPoint, PostPermissionCheckpoint postPermissionCheckpoint)
             throws Throwable {
         log.info("[postPermissionExecute] has been called for method {}", getMethodNames(joinPoint));
     }
