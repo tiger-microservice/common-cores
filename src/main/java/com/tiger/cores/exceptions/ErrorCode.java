@@ -18,6 +18,7 @@ public enum ErrorCode implements BaseError {
     USER_DONT_HAVE_PERMISSION("MCM00005", HttpStatus.FORBIDDEN),
     TOKEN_INVALID("MCM00010", HttpStatus.FORBIDDEN),
     MAX_TERMS_RETRY("MCM00011", HttpStatus.BAD_REQUEST),
+    XSS_REQUEST_INVALID("MCM00012", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(String messageCode, HttpStatusCode statusCode) {

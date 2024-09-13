@@ -19,6 +19,7 @@ public class LoggingConfig {
     private static final String WITHIN_ANNOTATION_REST_CONTROLLER =
             "within(@org.springframework.web.bind.annotation.RestController *)";
     public static final String BASE_BEANS_POINTCUT = PACKAGE_NAME + "springBeanPointcut()";
+    public static final String REST_CONTROLLER_BEANS_POINTCUT = PACKAGE_NAME + "springBeanControllerPointcut()";
 
     @Pointcut("within(com.tiger..*) && execution(* com.tiger.*.services.*.*(..)))")
     public void serviceLayerPointcut() {}
@@ -33,4 +34,7 @@ public class LoggingConfig {
     @Pointcut(WITHIN_ANNOTATION_REPOSITORY + " || " + WITHIN_ANNOTATION_SERVICE + " || "
             + WITHIN_ANNOTATION_REST_CONTROLLER)
     public void springBeanPointcut() {}
+
+    @Pointcut(WITHIN_ANNOTATION_REST_CONTROLLER)
+    public void springBeanControllerPointcut() {}
 }
