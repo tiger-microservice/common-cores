@@ -34,13 +34,12 @@ import lombok.extern.slf4j.Slf4j;
 public class XssValidationAspect {
     private static final String PACKAGE_CONTAIN_VALUE = ".tiger.";
     private static final String XSS_PATTERNS_REGEX =
-            "(?i)(<(script|iframe|object|embed|form|meta)[^>]*>|" +
-                    "<\\/(script|iframe|object|embed|form|meta)>|" +
-                    "\\bon\\w+\\s*=\\s*[\"'][^\"'>]*[a-zA-Z][^\"'>]*[\"']|" +
-                    "expression\\([^)]*\\)|" +
-                    "url\\(\\s*javascript:[^)]*\\)|" +
-                    "data:\\s*(text\\/html|application\\/xml)[^,]*|" +
-                    "javascript:|vbscript:)";
+            "(?i)(<(script|iframe|object|embed|form|meta)[^>]*>|" + "<\\/(script|iframe|object|embed|form|meta)>|"
+                    + "\\bon\\w+\\s*=\\s*[\"'][^\"'>]*[a-zA-Z][^\"'>]*[\"']|"
+                    + "expression\\([^)]*\\)|"
+                    + "url\\(\\s*javascript:[^)]*\\)|"
+                    + "data:\\s*(text\\/html|application\\/xml)[^,]*|"
+                    + "javascript:|vbscript:)";
 
     private final ObjectMapper mapper;
     private final HttpServletRequest request;
