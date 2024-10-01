@@ -1,6 +1,5 @@
 package com.tiger.cores.services.impl;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -77,14 +76,14 @@ public class RedisService implements CacheService {
     @Override
     public <T, R> R lock(String key, T input, Function<T, R> funcCallback, long milliSeconds) {
         AtomicInteger counter = new AtomicInteger(0);
-        while (Objects.nonNull(get(key))) {
+        while (increment(key) > 1) {
             ThreadUtil.sleep(1 * 1000L); // 1 seconds
             if (counter.incrementAndGet() > 5) { // max 5 terms
                 throw new BusinessLogicException(ErrorCode.MAX_TERMS_RETRY);
             }
         }
 
-        put(key, "LOCK", milliSeconds); // 10 seconds
+        put(key, "REDIS_LOCK_TRANS", milliSeconds); // 10 seconds
         try {
             return funcCallback.apply(input);
         } finally {

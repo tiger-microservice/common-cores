@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiger.cores.aops.annotations.InternalOnly;
@@ -30,31 +32,18 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "app.secure.xss.enable", name = "enable", havingValue = "true", matchIfMissing = true)
 public class XssValidationAspect {
-    private final ObjectMapper mapper;
     private static final String PACKAGE_CONTAIN_VALUE = ".tiger.";
-    private static final Pattern[] XSS_PATTERNS = {
-        // HTML Tags (script, iframe, meta, xml, etc.)
-        Pattern.compile("<(\\s*)script(.*?)>(.*?)</script>", Pattern.CASE_INSENSITIVE),
-        Pattern.compile("<(\\s*)iframe(.*?)>", Pattern.CASE_INSENSITIVE),
-        Pattern.compile("<(\\s*)meta(.*?)>", Pattern.CASE_INSENSITIVE),
-        Pattern.compile("<(\\s*)xml(.*?)>", Pattern.CASE_INSENSITIVE),
-        Pattern.compile("<(\\s*)xss(.*?)>", Pattern.CASE_INSENSITIVE),
-        // JavaScript Event Handlers (onload, onclick, etc.)
-        Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-        Pattern.compile("onclick(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-        Pattern.compile("onmouseover(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-        Pattern.compile("onerror(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-        // JavaScript Protocols
-        Pattern.compile("javascript:", Pattern.CASE_INSENSITIVE),
-        Pattern.compile("vbscript:", Pattern.CASE_INSENSITIVE),
-        // Data URIs
-        Pattern.compile("data:", Pattern.CASE_INSENSITIVE),
-        // Inline CSS with JavaScript
-        Pattern.compile("expression\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-        Pattern.compile("url\\(javascript:(.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
-    };
+    private static final String XSS_PATTERNS_REGEX =
+            "(?i)(<(script|iframe|object|embed|form|meta)[^>]*>|" +
+                    "<\\/(script|iframe|object|embed|form|meta)>|" +
+                    "\\bon\\w+\\s*=\\s*[\"'][^\"'>]*[a-zA-Z][^\"'>]*[\"']|" +
+                    "expression\\([^)]*\\)|" +
+                    "url\\(\\s*javascript:[^)]*\\)|" +
+                    "data:\\s*(text\\/html|application\\/xml)[^,]*|" +
+                    "javascript:|vbscript:)";
 
-    final HttpServletRequest request;
+    private final ObjectMapper mapper;
+    private final HttpServletRequest request;
 
     @Before(LoggingConfig.REST_CONTROLLER_BEANS_POINTCUT)
     public void validateXssForRequest(JoinPoint joinPoint) throws Throwable {
@@ -62,6 +51,8 @@ public class XssValidationAspect {
         Method method = methodSignature.getMethod();
         String className = methodSignature.getDeclaringType().getSimpleName();
         String methodName = methodSignature.getName();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         try {
             if (method.isAnnotationPresent(InternalOnly.class)) {
                 log.info("[validateXssForRequest] class {} validate xss for method {} ignore", className, methodName);
@@ -76,6 +67,21 @@ public class XssValidationAspect {
                     className,
                     methodName);
             throw e;
+        } finally {
+            stopWatch.stop();
+            long totalTimeMillis = stopWatch.getTotalTimeMillis();
+            log.debug(
+                    "[validateXssForRequest] class {} method {} execute times {} ms",
+                    className,
+                    method,
+                    totalTimeMillis);
+            if (totalTimeMillis > 100) { // 100 milliseconds
+                log.warn(
+                        "[validateXssForRequest] class {} method {} slow check xss {} ms",
+                        className,
+                        method,
+                        totalTimeMillis);
+            }
         }
     }
 
@@ -119,12 +125,9 @@ public class XssValidationAspect {
     }
 
     private boolean isXSS(String value) {
-        for (Pattern scriptPattern : XSS_PATTERNS) {
-            if (scriptPattern.matcher(value).find()) {
-                return true;
-            }
-        }
-        return false;
+        Pattern pattern = Pattern.compile(XSS_PATTERNS_REGEX);
+        Matcher matcher = pattern.matcher(value);
+        return matcher.find();
     }
 
     private String castToString(Object o) {
