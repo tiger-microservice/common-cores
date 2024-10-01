@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -20,6 +21,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 @Configuration
 public class AsyncConfig {
 
+    @Value("${spring.application.name:service-name}")
+    private String appName;
+
     @Primary
     @Bean(name = "asyncExecutor")
     public Executor asyncExecutor() {
@@ -28,7 +32,7 @@ public class AsyncConfig {
         executor.setMaxPoolSize(15);
         executor.setQueueCapacity(1000);
         executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setThreadNamePrefix("authorization-service-");
+        executor.setThreadNamePrefix(appName + "-");
         executor.initialize();
         executor.setTaskDecorator(new ContextCopyingDecorator());
         return executor;
