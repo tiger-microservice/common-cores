@@ -1,7 +1,10 @@
 package com.tiger.cores.configs.security;
 
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tiger.cores.configs.locale.Translator;
+import com.tiger.cores.constants.AppConstants;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +19,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tiger.cores.configs.locale.Translator;
-import com.tiger.cores.constants.AppConstants;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
 // refer guideline https://viblo.asia/p/spring-boot-huong-dan-tao-bean-co-dieu-kien-voi-atconditional-gDVK2270KLj
 @Slf4j

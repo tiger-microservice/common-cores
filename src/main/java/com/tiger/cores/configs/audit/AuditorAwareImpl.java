@@ -1,12 +1,10 @@
 package com.tiger.cores.configs.audit;
 
-import java.util.Optional;
-
+import com.tiger.cores.utils.UserInfoUtil;
+import lombok.NonNull;
 import org.springframework.data.domain.AuditorAware;
 
-import com.tiger.cores.utils.UserInfoUtil;
-
-import lombok.NonNull;
+import java.util.Optional;
 
 public class AuditorAwareImpl implements AuditorAware<String> {
 

@@ -1,7 +1,7 @@
 package com.tiger.cores.aops;
 
-import java.lang.reflect.Field;
-
+import com.tiger.cores.aops.annotations.Sanitize;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -9,9 +9,7 @@ import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.stereotype.Component;
 
-import com.tiger.cores.aops.annotations.Sanitize;
-
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.Field;
 
 @Slf4j
 @Aspect

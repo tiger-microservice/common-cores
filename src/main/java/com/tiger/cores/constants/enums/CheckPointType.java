@@ -1,9 +1,9 @@
 package com.tiger.cores.constants.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.List;
-
-import lombok.Getter;
 
 @Getter
 public enum CheckPointType {

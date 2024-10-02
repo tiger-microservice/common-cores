@@ -2,11 +2,9 @@ package com.tiger.cores.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-
-import org.hibernate.annotations.SQLRestriction;
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Setter

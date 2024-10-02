@@ -1,8 +1,10 @@
 package com.tiger.cores.dtos.responses;
 
 import com.tiger.cores.encryptors.securities.impl.AESEncryptionKey;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder

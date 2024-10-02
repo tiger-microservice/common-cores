@@ -1,12 +1,11 @@
 package com.tiger.cores.dtos;
 
-import java.util.UUID;
-
 import com.tiger.cores.constants.enums.AccountState;
 import com.tiger.cores.constants.enums.MfaType;
 import com.tiger.cores.constants.enums.OnlineStatus;
-
 import lombok.*;
+
+import java.util.UUID;
 
 @Getter
 @Setter

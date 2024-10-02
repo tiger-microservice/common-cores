@@ -1,11 +1,10 @@
 package com.tiger.cores.utils;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import com.tiger.cores.constants.AppConstants;
 import com.tiger.cores.constants.enums.Domain;
 import com.tiger.cores.dtos.UserPayloadDto;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public final class UserInfoUtil {
 
