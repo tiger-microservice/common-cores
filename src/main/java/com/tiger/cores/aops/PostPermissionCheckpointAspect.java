@@ -1,10 +1,12 @@
 package com.tiger.cores.aops;
 
-import com.tiger.cores.aops.annotations.PrePermissionCheckpoint;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+
+import com.tiger.cores.aops.annotations.PrePermissionCheckpoint;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Verify data response in scope of User

@@ -1,11 +1,13 @@
 package com.tiger.cores.aops;
 
-import com.tiger.cores.aops.annotations.PostPermissionCheckpoint;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+
+import com.tiger.cores.aops.annotations.PostPermissionCheckpoint;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Verify request in scope of User

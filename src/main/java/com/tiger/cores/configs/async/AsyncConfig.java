@@ -1,5 +1,8 @@
 package com.tiger.cores.configs.async;
 
+import java.util.Map;
+import java.util.concurrent.Executor;
+
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,9 +16,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-
-import java.util.Map;
-import java.util.concurrent.Executor;
 
 @EnableAsync
 @Configuration

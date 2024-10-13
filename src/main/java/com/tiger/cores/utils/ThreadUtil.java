@@ -1,9 +1,9 @@
 package com.tiger.cores.utils;
 
+import java.util.concurrent.TimeUnit;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-
-import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ThreadUtil {
