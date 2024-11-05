@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,25 +15,27 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractGenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.tiger.cores.encryptors.constants.HttpRequestAttributeConstants;
 import com.tiger.cores.utils.JsonUtil;
 
 import io.micrometer.core.instrument.util.IOUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Support convert value
  */
 @Slf4j
-@Component
-@RequiredArgsConstructor
+// @Component // add to global handler converter for all rest template
 public class SupportEncryptedHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
 
     final HttpServletRequest httpServletRequest;
+
+    public SupportEncryptedHttpMessageConverter(HttpServletRequest httpServletRequest) {
+        super(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+        this.httpServletRequest = httpServletRequest;
+    }
 
     @Override
     public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
