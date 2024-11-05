@@ -11,28 +11,28 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.tiger.cores.configs.timezone.TimezoneContext;
+import com.tiger.cores.configs.databases.TenantContext;
 import com.tiger.cores.constants.AppConstants;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Order(2)
+@Order(3)
 @Component
-public class TimezoneFilter extends OncePerRequestFilter {
+public class TenantFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String timeZone = request.getHeader(AppConstants.APP_TIME_ZONE);
-        log.info("url {} timeZone {}", request.getContextPath(), timeZone);
-        TimezoneContext.setCurrentTimezone(timeZone);
+        String tenantId = request.getHeader(AppConstants.APP_TENANT_ID);
+        log.info("[TenantFilter] url {} tenantId {}", request.getContextPath(), tenantId);
+        TenantContext.setCurrentTenant(tenantId);
 
         try {
             // Continue the filter chain
             filterChain.doFilter(request, response);
         } finally {
-            TimezoneContext.clear();
+            TenantContext.clear();
         }
     }
 }

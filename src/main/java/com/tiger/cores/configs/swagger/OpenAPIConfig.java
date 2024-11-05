@@ -1,5 +1,6 @@
 package com.tiger.cores.configs.swagger;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +13,10 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        value = "app.openapi.config.enable",
+        havingValue = "true", // Nếu giá trị app.redisson.config  = true thì Bean mới được khởi tạo
+        matchIfMissing = true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.redisson.config
 public class OpenAPIConfig {
 
     public static final String BEARER_AUTH = "bearerAuth";

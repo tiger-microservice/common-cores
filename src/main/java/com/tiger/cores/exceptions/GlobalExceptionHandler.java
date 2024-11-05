@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import jakarta.validation.ConstraintViolation;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +29,15 @@ public class GlobalExceptionHandler {
 
     private final Translator translator;
 
+    @ExceptionHandler(value = DuplicateRequestException.class)
+    ResponseEntity<ApiResponse<Object>> handlingDuplicateRequestException(DuplicateRequestException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ApiResponse.responseError(
+                        HttpStatus.TOO_MANY_REQUESTS.value(),
+                        HttpStatus.TOO_MANY_REQUESTS.name(),
+                        exception.getMessage()));
+    }
+
     @ExceptionHandler(value = RateLimitExceededException.class)
     ResponseEntity<ApiResponse<Object>> handlingRateLimitExceededException(RateLimitExceededException exception) {
         return ResponseEntity.status(LOCKED)
@@ -39,6 +49,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.responseError(
                         HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.name(), exception.getMessage()));
+    }
+
+    @ExceptionHandler(value = OptimisticLockingFailureException.class)
+    ResponseEntity<ApiResponse<Object>> handlingAccessDeniedException(OptimisticLockingFailureException exception) {
+        return handlingException(exception);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)

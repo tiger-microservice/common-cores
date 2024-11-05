@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@ConditionalOnProperty(prefix = "app.timezone", name = "enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "app.timezone.config.enable", havingValue = "true", matchIfMissing = true)
 public class TimeZoneConfig {
 
     @Value("${app.timezone.value:UTC}")

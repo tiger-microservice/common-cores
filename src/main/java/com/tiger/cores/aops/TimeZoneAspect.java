@@ -15,14 +15,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.tiger.cores.aops.annotations.ConvertTimeZone;
+import com.tiger.cores.configs.logging.LoggingConfig;
+import com.tiger.cores.configs.timezone.TimezoneContext;
 import com.tiger.cores.dtos.responses.ApiResponse;
-import com.tiger.cores.filters.TimezoneFilter;
 
 @Aspect
 @Component
 public class TimeZoneAspect {
 
-    @Around("execution(* *.tiger.*.controllers.*.*..*(..))")
+    @Around(LoggingConfig.REST_CONTROLLER_BEANS_POINTCUT)
     public Object beforeAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = joinPoint.proceed();
         if (result != null) {
@@ -64,7 +65,7 @@ public class TimeZoneAspect {
 
                 if (field.isAnnotationPresent(ConvertTimeZone.class) && value instanceof LocalDateTime localDateTime) {
                     ConvertTimeZone annotation = field.getAnnotation(ConvertTimeZone.class);
-                    String clientTimeZone = TimezoneFilter.getTimeZone();
+                    String clientTimeZone = TimezoneContext.getCurrentTimezone();
                     if (Strings.isBlank(clientTimeZone)) return;
 
                     ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(annotation.fromZone()));

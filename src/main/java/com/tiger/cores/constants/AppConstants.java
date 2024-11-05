@@ -24,6 +24,8 @@ public final class AppConstants {
 
     public static final String APP_TRANSACTION_KEY = "app-transaction-key";
 
+    public static final String APP_TENANT_ID = "app-tenant-id";
+
     public static final String START = "*";
 
     public static class JwtKey {

@@ -1,5 +1,6 @@
 package com.tiger.cores.configs.redis;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisPassword;
@@ -12,6 +13,10 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        value = "app.redis.config.enable",
+        havingValue = "true", // Nếu giá trị app.redis.config  = true thì Bean mới được khởi tạo
+        matchIfMissing = true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.redis.config
 public class RedisConfig {
 
     final RedisProperties redisProperties;

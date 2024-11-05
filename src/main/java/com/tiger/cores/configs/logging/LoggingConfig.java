@@ -2,6 +2,7 @@ package com.tiger.cores.configs.logging;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        value = "app.logging.config.enable",
+        havingValue = "true", // Nếu giá trị app.redisson.config  = true thì Bean mới được khởi tạo
+        matchIfMissing = true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.redisson.config
 public class LoggingConfig {
 
     private static final String PACKAGE_NAME = "com.tiger.cores.configs.logging.LoggingConfig.";

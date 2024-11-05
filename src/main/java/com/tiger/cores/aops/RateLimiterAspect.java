@@ -4,11 +4,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import com.tiger.cores.aops.annotations.RateLimiter;
@@ -57,23 +52,6 @@ public class RateLimiterAspect extends AbstractAspect {
             value = parserKey(joinPoint, value);
         }
         return value;
-    }
-
-    private String parserKey(ProceedingJoinPoint joinPoint, String keyExpression) {
-        ExpressionParser parser = new SpelExpressionParser();
-        EvaluationContext context = new StandardEvaluationContext();
-
-        // Đặt các tham số của phương thức vào EvaluationContext theo tên biến
-        Object[] args = joinPoint.getArgs();
-        String[] parameterNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
-        for (int i = 0; i < parameterNames.length; i++) {
-            context.setVariable(parameterNames[i], args[i]);
-        }
-
-        // Đánh giá SpEL expression
-        var valueObject = parser.parseExpression(keyExpression).getValue(context);
-
-        return valueObject == null ? null : valueObject.toString();
     }
 
     private String generateKey(ProceedingJoinPoint joinPoint, String key) {

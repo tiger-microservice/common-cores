@@ -5,7 +5,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,5 +56,22 @@ public abstract class AbstractAspect {
 
     protected Map<String, Object> getExtraVariable() {
         return new HashMap<>();
+    }
+
+    protected String parserKey(ProceedingJoinPoint joinPoint, String keyExpression) {
+        ExpressionParser parser = new SpelExpressionParser();
+        EvaluationContext context = new StandardEvaluationContext();
+
+        // Đặt các tham số của phương thức vào EvaluationContext theo tên biến
+        Object[] args = joinPoint.getArgs();
+        String[] parameterNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
+        for (int i = 0; i < parameterNames.length; i++) {
+            context.setVariable(parameterNames[i], args[i]);
+        }
+
+        // Đánh giá SpEL expression
+        var valueObject = parser.parseExpression(keyExpression).getValue(context);
+
+        return valueObject == null ? null : valueObject.toString();
     }
 }

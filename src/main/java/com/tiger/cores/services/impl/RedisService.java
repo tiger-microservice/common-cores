@@ -76,14 +76,13 @@ public class RedisService implements CacheService {
     @Override
     public <T, R> R lock(String key, T input, Function<T, R> funcCallback, long milliSeconds) {
         AtomicInteger counter = new AtomicInteger(0);
-        while (increment(key) > 1) {
-            ThreadUtil.sleep(1 * 1000L); // 1 seconds
+        while (Boolean.FALSE.equals(redisTemplate.opsForValue().setIfAbsent(key, "locked"))) {
+            ThreadUtil.sleep(1000L); // 1 seconds
             if (counter.incrementAndGet() > 5) { // max 5 terms
                 throw new BusinessLogicException(ErrorCode.MAX_TERMS_RETRY);
             }
         }
 
-        put(key, "REDIS_LOCK_TRANS", milliSeconds); // 10 seconds
         try {
             return funcCallback.apply(input);
         } finally {

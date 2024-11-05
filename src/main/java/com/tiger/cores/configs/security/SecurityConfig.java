@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,12 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // support use @PreAuthorize, @PostAuthorize, @Secured, và @RolesAllowed
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        value = "app.security.config-custom",
-        havingValue = "false", // Nếu giá trị app.security.config.custom  = true thì Bean mới được khởi tạo
+        value = "app.security.config.enable",
+        havingValue = "true", // Nếu giá trị app.security.config.custom  = true thì Bean mới được khởi tạo
         matchIfMissing =
-                false) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
+                true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
 public class SecurityConfig {
 
     final Translator translator;
@@ -40,7 +42,7 @@ public class SecurityConfig {
     final CustomJwtDecoder customJwtDecoder;
     final SecurityProperties securityProperties;
 
-    @Value("${app.cross-origin:false}")
+    @Value("${app.security.config.cross-origin:false}")
     private Boolean crossOrigin;
 
     @Bean

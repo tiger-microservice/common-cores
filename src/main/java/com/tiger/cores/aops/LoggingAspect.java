@@ -31,7 +31,7 @@ public class LoggingAspect {
     final ObjectMapper objectMapper;
     final LoggingProperties loggingProperties;
 
-    @ConditionalOnProperty(prefix = "app.log.function", name = "enable", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "app.log.function", havingValue = "enable", matchIfMissing = true)
     @Around(LoggingConfig.BASE_BEANS_POINTCUT)
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();

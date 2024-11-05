@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "app.secure.xss.enable", name = "enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "app.secure.xss.enable", havingValue = "true", matchIfMissing = true)
 public class XssValidationAspect {
     private static final String PACKAGE_CONTAIN_VALUE = ".tiger.";
     private static final String XSS_PATTERNS_REGEX =
@@ -40,6 +40,7 @@ public class XssValidationAspect {
                     + "url\\(\\s*javascript:[^)]*\\)|"
                     + "data:\\s*(text\\/html|application\\/xml)[^,]*|"
                     + "javascript:|vbscript:)";
+    String a = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<memberenquiry>\n";
 
     private final ObjectMapper mapper;
     private final HttpServletRequest request;
@@ -133,7 +134,7 @@ public class XssValidationAspect {
         try {
             return mapper.writeValueAsString(o);
         } catch (Exception e) {
-            log.error("[XssValidationAspect][castToString] error {}", e.getMessage());
+            log.warn("[XssValidationAspect][castToString] error {}", e.getMessage());
             return "";
         }
     }

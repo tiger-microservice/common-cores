@@ -6,5 +6,6 @@ import lombok.Getter;
 public enum Domain {
     CMS,
     TRELLO,
-    APP_CUSTOMER;
+    APP_CUSTOMER,
+    CPM;
 }
