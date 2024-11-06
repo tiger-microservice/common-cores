@@ -49,7 +49,7 @@ public class RateLimiterAspect extends AbstractAspect {
             value = generateKey(joinPoint, value);
         } else {
             // parser expression
-            value = parserKey(joinPoint, value);
+            value = getValueByExpressionFromRequest(joinPoint, value).toString();
         }
         return value;
     }

@@ -1,5 +1,6 @@
 package com.tiger.cores.services.impl;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -89,5 +90,16 @@ public class RedisService implements CacheService {
             // release lock
             expireTime(key, 0);
         }
+    }
+
+    @Override
+    public boolean lock(String key, String value, long milliSeconds) {
+        return Boolean.TRUE.equals(
+                redisTemplate.opsForValue().setIfAbsent(key, value, Duration.ofMillis(milliSeconds)));
+    }
+
+    @Override
+    public void releaseLock(String key) {
+        redisTemplate.delete(key);
     }
 }

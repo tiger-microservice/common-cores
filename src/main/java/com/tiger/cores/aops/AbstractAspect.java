@@ -58,7 +58,7 @@ public abstract class AbstractAspect {
         return new HashMap<>();
     }
 
-    protected String parserKey(ProceedingJoinPoint joinPoint, String keyExpression) {
+    protected Object getValueByExpressionFromRequest(ProceedingJoinPoint joinPoint, String keyExpression) {
         ExpressionParser parser = new SpelExpressionParser();
         EvaluationContext context = new StandardEvaluationContext();
 
@@ -72,6 +72,18 @@ public abstract class AbstractAspect {
         // Đánh giá SpEL expression
         var valueObject = parser.parseExpression(keyExpression).getValue(context);
 
-        return valueObject == null ? null : valueObject.toString();
+        return valueObject == null ? null : valueObject;
+    }
+
+    protected Object getValueByExpressionFromResponse(Object response, String keyExpression) {
+        StandardEvaluationContext context = new StandardEvaluationContext(response);
+        ExpressionParser parser = new SpelExpressionParser();
+
+        context.setVariable("result", response);
+
+        // Đánh giá SpEL expression
+        var valueObject = parser.parseExpression(keyExpression).getValue(context);
+
+        return valueObject == null ? null : valueObject;
     }
 }

@@ -29,6 +29,16 @@ public class GlobalExceptionHandler {
 
     private final Translator translator;
 
+    @ExceptionHandler(value = StaleDataException.class)
+    ResponseEntity<ApiResponse<Object>> handlingStaleDataException(StaleDataException exception) {
+        BaseError errorCode = exception.getErrorCode();
+        return ResponseEntity.status(errorCode.getHttpStatusCode().value())
+                .body(ApiResponse.responseError(
+                        errorCode.getHttpStatusCode().value(),
+                        errorCode.getMessageCode(),
+                        translator.toMessage(errorCode.getMessageCode(), exception.getParams())));
+    }
+
     @ExceptionHandler(value = DuplicateRequestException.class)
     ResponseEntity<ApiResponse<Object>> handlingDuplicateRequestException(DuplicateRequestException exception) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
@@ -71,7 +81,7 @@ public class GlobalExceptionHandler {
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
             log.info(attributes.toString());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("[handlingMethodArgumentNotValidException] error {}", e.getMessage(), e);
         }
 
         return ResponseEntity.badRequest()

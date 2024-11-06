@@ -1,9 +1,9 @@
 package com.tiger.cores.services;
 
-import java.util.UUID;
-
-import org.springframework.data.redis.core.RedisTemplate;
+import com.tiger.cores.exceptions.ErrorCode;
 import org.springframework.stereotype.Service;
+
+import com.tiger.cores.exceptions.StaleDataException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -11,20 +11,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class VersionTrackingService {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final CacheService cacheService;
     private static final String VERSION_KEY = "user_version:";
 
-    public void trackVersion(String username, String entityType, String entityId, UUID version) {
-        String key = getKey(username, entityType, entityId);
-        redisTemplate.opsForValue().set(key, version.toString());
+    public void trackVersion(String username, String entityId, String version, long ttl) {
+        String key = getKey(username, entityId);
+        cacheService.put(key, version, ttl);
     }
 
-    public String getUserVersion(String username, String entityType, String entityId) {
-        String key = getKey(username, entityType, entityId);
-        return redisTemplate.opsForValue().get(key);
+    public String getUserVersion(String username, String entityId) {
+        String key = getKey(username, entityId);
+        var version = cacheService.get(key);
+
+        if (version == null) {
+            throw new StaleDataException(ErrorCode.CONCURRENT_REQUEST_ERROR);
+        }
+
+        return version.toString();
     }
 
-    private String getKey(String username, String entityType, String entityId) {
-        return VERSION_KEY + username + ":" + entityType + ":" + entityId;
+    // username::id::version
+    private String getKey(String username, String entityId) {
+        return VERSION_KEY + username + "::" + entityId;
     }
 }

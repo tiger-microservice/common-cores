@@ -1,7 +1,6 @@
 package com.tiger.cores.exceptions;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatusCode;
 
 @Getter
 public class BusinessLogicException extends RuntimeException {

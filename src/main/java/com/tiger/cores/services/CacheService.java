@@ -22,4 +22,8 @@ public interface CacheService {
     Object get(String key);
 
     <T, R> R lock(String key, T input, Function<T, R> funcCallback, long milliSeconds);
+
+    boolean lock(String key, String value, long milliSeconds);
+
+    void releaseLock(String key);
 }

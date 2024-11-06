@@ -1,36 +1,36 @@
- package com.tiger.cores.configs.databases;
+package com.tiger.cores.configs.databases;
 
- import java.io.File;
- import java.io.FileInputStream;
- import java.io.IOException;
- import java.nio.file.Paths;
- import java.util.HashMap;
- import java.util.Map;
- import java.util.Properties;
- import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import javax.sql.DataSource;
 
- import org.springframework.beans.factory.annotation.Qualifier;
- import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
- import org.springframework.boot.context.properties.ConfigurationProperties;
- import org.springframework.context.annotation.Bean;
- import org.springframework.context.annotation.Configuration;
- import org.springframework.core.env.Environment;
- import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
- import org.springframework.orm.jpa.JpaTransactionManager;
- import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
- import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
- import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 
- import com.zaxxer.hikari.HikariConfig;
- import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
- import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 // same db, different schema
- @Configuration
- @RequiredArgsConstructor
- @ConditionalOnProperty(name = "app.tenant.config.enable", havingValue = "true")
- public class DataSourceConfig {
+@Configuration
+@RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.tenant.config.enable", havingValue = "true")
+public class DataSourceConfig {
 
     private final TenantProperties tenantProperties;
 
@@ -54,7 +54,7 @@
                 config.setMaximumPoolSize(
                         Integer.parseInt(tenantProperties.getProperty("datasource.hikari.maximum-pool-size")));
 
- config.setMinimumIdle(Integer.parseInt(tenantProperties.getProperty("datasource.hikari.minimum-idle")));
+                config.setMinimumIdle(Integer.parseInt(tenantProperties.getProperty("datasource.hikari.minimum-idle")));
                 config.setIdleTimeout(Long.parseLong(tenantProperties.getProperty("datasource.hikari.idle-timeout")));
                 config.setMaxLifetime(Long.parseLong(tenantProperties.getProperty("datasource.hikari.max-lifetime")));
                 config.setConnectionTimeout(
@@ -100,4 +100,4 @@
         properties.put("hibernate.show_sql", env.getProperty("spring.jpa.properties.hibernate.show_sql"));
         return properties;
     }
- }
+}

@@ -20,6 +20,7 @@ public enum ErrorCode implements BaseError {
     MAX_TERMS_RETRY("MCM00011", HttpStatus.BAD_REQUEST),
     XSS_REQUEST_INVALID("MCM00012", HttpStatus.BAD_REQUEST),
     DUPLICATE_REQUEST("MCM00013", HttpStatus.BAD_REQUEST),
+    CONCURRENT_REQUEST_ERROR("MCM00014", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(String messageCode, HttpStatusCode statusCode) {
