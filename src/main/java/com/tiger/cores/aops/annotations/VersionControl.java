@@ -7,20 +7,99 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.tiger.cores.constants.enums.VersionControlType;
 
 /**
- * claim_id::version
- * etIfAbsent(key="claim_id_100", value="locked_by:'user-1', locked_at: 22/10/2024 10:05:05")
+ * Annotation for controlling concurrent access to database records using versioning.
+ * <p>
+ * {@code VersionControl} is used to manage concurrent access to a specific record in the database,
+ * ensuring data consistency by validating record versions. This annotation can be applied to methods
+ * that retrieve or update a record to enforce concurrency control. When multiple users attempt to
+ * access or modify the same record concurrently, version control helps to ensure that only one action
+ * succeeds, while others may need to refresh their data to retrieve the latest version before retrying.
+ * </p>
  *
+ * <ul>
+ * <li><b>objectIdKey</b>: Specifies the key or expression used to identify the unique ID of the record.</li>
+ * <li><b>objectVersionKey</b>: Specifies the key or expression for the current version of the record.</li>
+ * <li><b>repositoryClass</b>: Defines the {@link JpaRepository} class that manages the entity's data in the
+ * database. This repository is used to handle database operations for the specified record.</li>
+ * <li><b>type</b>: Defines the {@link VersionControlType} action for the annotation. Possible values are:
+ * <ul>
+ *   <li>{@code GET} - Used when retrieving the record.</li>
+ *   <li>{@code UPDATE} - Used when updating the record.</li>
+ * </ul>
+ * </li>
+ * </ul>
+ *
+ * <p>
+ * Example Usage:
+ * </p>
+ * <p><b>For retrieving data:</b></p>
+ * <pre>
+ * {@code
+ * @GetMapping("/{id}")
+ * @VersionControl(
+ *         objectIdKey = "#id",
+ *         objectVersionKey = "#result.version")
+ * public ResponseEntity<Record> getRecord(@PathVariable Long id) {
+ *     // Method logic for fetching the record
+ * }
+ * }
+ * </pre>
+ *
+ * <p><b>For updating data:</b></p>
+ * <pre>
+ * {@code
+ * @PutMapping("/{id}")
+ * @VersionControl(
+ *         objectIdKey = "#id",
+ *         repositoryClass = XXXXRepository.class,
+ *         type = VersionControlType.UPDATE)
+ * public ResponseEntity<Void> updateRecord(@PathVariable Long id, @RequestBody RecordUpdateRequest request) {
+ *     // Method logic for updating the record
+ * }
+ * }
+ * </pre>
+ *
+ * @see VersionControlType
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface VersionControl {
+    /**
+     * Specifies the key or expression for the unique identifier of the record.
+     * This ID is used to identify the specific record that is being accessed or updated.
+     *
+     * @return the expression for the record ID
+     */
     String objectIdKey() default "";
 
+    /**
+     * Specifies the key or expression for the current version of the record.
+     * This version is used to validate concurrency when performing updates.
+     *
+     * @return the expression for the record version
+     */
     String objectVersionKey() default "";
 
+    /**
+     * Defines the repository class managing the entity's data.
+     * This repository handles the necessary database operations for the entity.
+     * It should implement {@link JpaRepository}.
+     *
+     * @return the repository class associated with the entity
+     */
     Class<? extends JpaRepository> repositoryClass() default JpaRepository.class;
 
+    /**
+     * Defines the type of version control action to apply, either retrieving or updating the record.
+     * The {@link VersionControlType} enum specifies the available actions:
+     * <ul>
+     *   <li>{@code GET} - Used when retrieving the record.</li>
+     *   <li>{@code UPDATE} - Used when updating the record.</li>
+     * </ul>
+     *
+     * @return the version control action type
+     */
     VersionControlType type() default VersionControlType.GET;
 }

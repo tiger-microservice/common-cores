@@ -28,6 +28,8 @@ public final class AppConstants {
 
     public static final String START = "*";
 
+    public static final String KEY_SEPARATOR = ":";
+
     public static class JwtKey {
         public static final String SCOPE =
                 "scope"; // refer file JwtGrantedAuthoritiesConverter, default key -> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES

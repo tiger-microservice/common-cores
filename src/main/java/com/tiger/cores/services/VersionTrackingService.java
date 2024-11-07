@@ -1,8 +1,9 @@
 package com.tiger.cores.services;
 
-import com.tiger.cores.exceptions.ErrorCode;
 import org.springframework.stereotype.Service;
 
+import com.tiger.cores.constants.AppConstants;
+import com.tiger.cores.exceptions.ErrorCode;
 import com.tiger.cores.exceptions.StaleDataException;
 
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class VersionTrackingService {
 
+    private static final String VERSION_KEY = "user_version";
     private final CacheService cacheService;
-    private static final String VERSION_KEY = "user_version:";
 
     public void trackVersion(String username, String entityId, String version, long ttl) {
         String key = getKey(username, entityId);
@@ -30,8 +31,8 @@ public class VersionTrackingService {
         return version.toString();
     }
 
-    // username::id::version
+    // username:id:version
     private String getKey(String username, String entityId) {
-        return VERSION_KEY + username + "::" + entityId;
+        return VERSION_KEY + AppConstants.KEY_SEPARATOR + username + AppConstants.KEY_SEPARATOR + entityId;
     }
 }
