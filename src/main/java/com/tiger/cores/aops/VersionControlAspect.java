@@ -76,6 +76,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class VersionControlAspect extends AbstractAspect {
 
+    private static final String VERSION_CONTROL_LOCK = "VERSION_CONTROL_LOCK";
+
     private final CacheService cacheService;
     private final ApplicationContext applicationContext;
     private final VersionTrackingService versionTrackingService;
@@ -96,7 +98,7 @@ public class VersionControlAspect extends AbstractAspect {
         }
 
         // check if is UPDATE
-        String lockKey = generateKeyObject(username, objectId.toString());
+        String lockKey = generateKeyObject(objectId.toString());
 
         // check and lock in 30 seconds
         if (cacheService.lock(lockKey, objectId.toString(), versionControl.timeLockingTtl())) {
@@ -108,6 +110,10 @@ public class VersionControlAspect extends AbstractAspect {
                     log.warn("[VersionControl] username {} ignore check version", username);
                 } else {
                     actionTypeIsUpdate(versionControl, username, objectId);
+                }
+
+                if (VersionControlType.UPDATE_GET.equals(versionControl.type())) {
+                    return actionTypeIsGet(joinPoint, versionControl, username, objectId);
                 }
 
                 return joinPoint.proceed();
@@ -169,8 +175,8 @@ public class VersionControlAspect extends AbstractAspect {
         return recordData.orElseThrow(() -> new BusinessLogicException(ErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private String generateKeyObject(String username, String objectId) {
-        return username + AppConstants.KEY_SEPARATOR + objectId;
+    private String generateKeyObject(String objectId) {
+        return VERSION_CONTROL_LOCK + AppConstants.KEY_SEPARATOR + objectId;
     }
 
     private boolean isGetRequest(VersionControlType versionControlType) {
