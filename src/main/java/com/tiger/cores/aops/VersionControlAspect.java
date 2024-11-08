@@ -2,11 +2,9 @@ package com.tiger.cores.aops;
 
 import java.util.Optional;
 
-import org.apache.commons.text.WordUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
@@ -23,7 +21,6 @@ import com.tiger.cores.services.VersionTrackingService;
 import com.tiger.cores.utils.UserInfoUtil;
 
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -79,16 +76,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class VersionControlAspect extends AbstractAspect {
 
-    // default: 8 hours
-    @NonFinal
-    @Value("${app.version-tracking.version-tracking-ttl:28800000}")
-    Long versionTrackingTtl;
-
-    // default: 30 seconds
-    @NonFinal
-    @Value("${app.version-tracking.time-locking-ttl:30000}")
-    Long timeLockingTtl;
-
     private final CacheService cacheService;
     private final ApplicationContext applicationContext;
     private final VersionTrackingService versionTrackingService;
@@ -100,7 +87,7 @@ public class VersionControlAspect extends AbstractAspect {
         log.info("[VersionControl] username: {}", username);
 
         // get config objectId from version control
-        Object objectId = getValueByExpressionFromRequest(joinPoint, versionControl.objectIdKey());
+        Object objectId = getValueByExpressionFromRequest(joinPoint, versionControl.id());
         log.info("[VersionControl] objectId: {}", objectId);
 
         // check if is GET
@@ -112,11 +99,16 @@ public class VersionControlAspect extends AbstractAspect {
         String lockKey = generateKeyObject(username, objectId.toString());
 
         // check and lock in 30 seconds
-        if (cacheService.lock(lockKey, objectId.toString(), timeLockingTtl)) {
+        if (cacheService.lock(lockKey, objectId.toString(), versionControl.timeLockingTtl())) {
             try {
                 // if lock data is true
                 // get version of user
-                actionTypeIsUpdate(versionControl, username, objectId);
+                // check user is system -> ignore check version
+                if ("system".equals(username)) {
+                    log.warn("[VersionControl] username {} ignore check version", username);
+                } else {
+                    actionTypeIsUpdate(versionControl, username, objectId);
+                }
 
                 return joinPoint.proceed();
             } finally {
@@ -151,12 +143,12 @@ public class VersionControlAspect extends AbstractAspect {
         Object result = joinPoint.proceed();
 
         // get config objectVersion from version control
-        var objectVersion = getValueByExpressionFromResponse(result, versionControl.objectVersionKey());
+        var objectVersion = getValueByExpressionFromResponse(result, versionControl.version());
         log.info("[VersionControl] objectVersion: {}", objectVersion);
 
         // cache object into redis with key=username:id, value=version
         versionTrackingService.trackVersion(
-                username, objectId.toString(), objectVersion.toString(), versionTrackingTtl);
+                username, objectId.toString(), objectVersion.toString(), versionControl.versionTrackingTtl());
 
         return result;
     }
@@ -165,17 +157,16 @@ public class VersionControlAspect extends AbstractAspect {
         return new StaleDataException(ErrorCode.CONCURRENT_REQUEST_ERROR);
     }
 
-    private VersionAuditEntity getCurrentEntity(Object entityId, VersionControl versionControl) {
-        // find bean repository by class name
-        var repository =
-                (JpaRepository) applicationContext.getBean(getRepositoryName(versionControl.repositoryClass()));
-        Optional<VersionAuditEntity> recordData = repository.findById(entityId);
-        return recordData.orElseThrow(() -> new BusinessLogicException(ErrorCode.RESOURCE_NOT_FOUND));
+    @SuppressWarnings("unchecked")
+    private <T, ID> JpaRepository<T, ID> getRepository(Class<?> repositoryClass) {
+        return (JpaRepository<T, ID>) applicationContext.getBean(repositoryClass);
     }
 
-    private String getRepositoryName(Class clazz) {
-        if (clazz == null) throw new BusinessLogicException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-        return WordUtils.uncapitalize(clazz.getSimpleName());
+    private VersionAuditEntity getCurrentEntity(Object entityId, VersionControl versionControl) {
+        JpaRepository<VersionAuditEntity, Object> repository = getRepository(versionControl.repositoryClass());
+
+        Optional<VersionAuditEntity> recordData = repository.findById(entityId);
+        return recordData.orElseThrow(() -> new BusinessLogicException(ErrorCode.RESOURCE_NOT_FOUND));
     }
 
     private String generateKeyObject(String username, String objectId) {

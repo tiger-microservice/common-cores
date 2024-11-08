@@ -72,7 +72,7 @@ public @interface VersionControl {
      *
      * @return the expression for the record ID
      */
-    String objectIdKey() default "";
+    String id() default "";
 
     /**
      * Specifies the key or expression for the current version of the record.
@@ -80,7 +80,7 @@ public @interface VersionControl {
      *
      * @return the expression for the record version
      */
-    String objectVersionKey() default "";
+    String version() default "";
 
     /**
      * Defines the repository class managing the entity's data.
@@ -102,4 +102,22 @@ public @interface VersionControl {
      * @return the version control action type
      */
     VersionControlType type() default VersionControlType.GET;
+
+    /**
+     * Defines the Time-To-Live (TTL) duration in milliseconds for tracking the version information of the record.
+     * This helps to maintain version control for a specific time period, after which the version information
+     * may expire. Default value is 8 hours (28,800,000 ms).
+     *
+     * @return the TTL for version tracking, in milliseconds
+     */
+    long versionTrackingTtl() default 28800000L;
+
+    /**
+     * Defines the Time-To-Live (TTL) duration in milliseconds for locking access to a record during updates.
+     * This temporary lock prevents multiple users from simultaneously updating the same record.
+     * Default value is 30 seconds (30,000 ms).
+     *
+     * @return the TTL for locking the record, in milliseconds
+     */
+    long timeLockingTtl() default 30000L;
 }
