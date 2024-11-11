@@ -37,6 +37,7 @@ import com.tiger.cores.constants.enums.VersionControlType;
  * {@code
  * @GetMapping("/{id}")
  * @VersionControl(
+ *         name = "XXX",
  *         objectIdKey = "#id",
  *         objectVersionKey = "#result.version")
  * public ResponseEntity<Record> getRecord(@PathVariable Long id) {
@@ -50,9 +51,25 @@ import com.tiger.cores.constants.enums.VersionControlType;
  * {@code
  * @PutMapping("/{id}")
  * @VersionControl(
- *         objectIdKey = "#id",
+ *         name = "XXX",
+ *         id = "#id",
  *         repositoryClass = XXXXRepository.class,
  *         type = VersionControlType.UPDATE)
+ * public ResponseEntity<Void> updateRecord(@PathVariable Long id, @RequestBody RecordUpdateRequest request) {
+ *     // Method logic for updating the record
+ * }
+ * }
+ * </pre>
+ *
+ * <p><b>Example for updating and get data:</b></p>
+ * <pre>
+ * {@code
+ * @PutMapping("/{id}")
+ * @VersionControl(
+ *         name = "XXX",
+ *         version = "#result.version"
+ *         repositoryClass = XXXRepository.class,
+ *         type = VersionControlType.UPDATE_GET)
  * public ResponseEntity<Void> updateRecord(@PathVariable Long id, @RequestBody RecordUpdateRequest request) {
  *     // Method logic for updating the record
  * }
@@ -66,6 +83,9 @@ import com.tiger.cores.constants.enums.VersionControlType;
 @Inherited
 @Documented
 public @interface VersionControl {
+
+    String name();
+
     /**
      * Specifies the key or expression for the unique identifier of the record.
      * This ID is used to identify the specific record that is being accessed or updated.

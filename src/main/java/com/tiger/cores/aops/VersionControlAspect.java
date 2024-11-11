@@ -46,8 +46,9 @@ import lombok.extern.slf4j.Slf4j;
  * {@code
  * @GetMapping("/{id}")
  * @VersionControl(
- *         objectIdKey = "#id",
- *         objectVersionKey = "#result.version")
+ *         name = "XXX",
+ *         id = "#id",
+ *         version = "#result.version")
  * public ResponseEntity<Record> getRecord(@PathVariable Long id) {
  *     // Method logic for fetching the record
  * }
@@ -59,7 +60,8 @@ import lombok.extern.slf4j.Slf4j;
  * {@code
  * @PutMapping("/{id}")
  * @VersionControl(
- *         objectIdKey = "#id",
+ *         name = "XXX",
+ *         id = "#id",
  *         repositoryClass = XXXRepository.class,
  *         type = VersionControlType.UPDATE)
  * public ResponseEntity<Void> updateRecord(@PathVariable Long id, @RequestBody RecordUpdateRequest request) {
@@ -67,7 +69,20 @@ import lombok.extern.slf4j.Slf4j;
  * }
  * }
  * </pre>
- *
+ * <p><b>Example for updating and get data:</b></p>
+ * <pre>
+ * {@code
+ * @PutMapping("/{id}")
+ * @VersionControl(
+ *         name = "XXX",
+ *         version = "#result.version"
+ *         repositoryClass = XXXRepository.class,
+ *         type = VersionControlType.UPDATE_GET)
+ * public ResponseEntity<Void> updateRecord(@PathVariable Long id, @RequestBody RecordUpdateRequest request) {
+ *     // Method logic for updating the record
+ * }
+ * }
+ * </pre>
  * @see VersionControl
  */
 @Slf4j
@@ -76,7 +91,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class VersionControlAspect extends AbstractAspect {
 
-    private static final String VERSION_CONTROL_LOCK = "VERSION_CONTROL_LOCK";
+    private static final String VERSION_CONTROL_LOCK = "VERSION_CONTROL_LOCK_";
 
     private final CacheService cacheService;
     private final ApplicationContext applicationContext;
@@ -98,7 +113,7 @@ public class VersionControlAspect extends AbstractAspect {
         }
 
         // check if is UPDATE
-        String lockKey = generateKeyObject(objectId.toString());
+        String lockKey = generateKeyObject(versionControl.name(), objectId.toString());
 
         // check and lock in 30 seconds
         if (cacheService.lock(lockKey, objectId.toString(), versionControl.timeLockingTtl())) {
@@ -107,7 +122,7 @@ public class VersionControlAspect extends AbstractAspect {
                 // get version of user
                 // check user is system -> ignore check version
                 if ("system".equals(username)) {
-                    log.warn("[VersionControl] username {} ignore check version", username);
+                    log.warn("[VersionControl] user system ignore check version");
                 } else {
                     actionTypeIsUpdate(versionControl, username, objectId);
                 }
@@ -175,8 +190,9 @@ public class VersionControlAspect extends AbstractAspect {
         return recordData.orElseThrow(() -> new BusinessLogicException(ErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private String generateKeyObject(String objectId) {
-        return VERSION_CONTROL_LOCK + AppConstants.KEY_SEPARATOR + objectId;
+    // VERSION_CONTROL_LOCK_[ObjectName]:[ObjectId]
+    private String generateKeyObject(String objectName, String objectId) {
+        return VERSION_CONTROL_LOCK + objectName + AppConstants.KEY_SEPARATOR + objectId;
     }
 
     private boolean isGetRequest(VersionControlType versionControlType) {
