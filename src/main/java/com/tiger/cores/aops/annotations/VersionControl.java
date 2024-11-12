@@ -118,6 +118,7 @@ public @interface VersionControl {
      * <ul>
      *   <li>{@code GET} - Used when retrieving the record.</li>
      *   <li>{@code UPDATE} - Used when updating the record.</li>
+     *   <li>{@code UPDATE_GET} - Used when updating and GET version of record.</li>
      * </ul>
      *
      * @return the version control action type
