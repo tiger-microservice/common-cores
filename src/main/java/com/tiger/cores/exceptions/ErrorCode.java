@@ -21,6 +21,7 @@ public enum ErrorCode implements BaseError {
     XSS_REQUEST_INVALID("MCM00012", HttpStatus.BAD_REQUEST),
     DUPLICATE_REQUEST("MCM00013", HttpStatus.BAD_REQUEST),
     CONCURRENT_REQUEST_ERROR("MCM00014", HttpStatus.BAD_REQUEST),
+    TIMEOUT("MCM00015", HttpStatus.REQUEST_TIMEOUT),
     ;
 
     ErrorCode(String messageCode, HttpStatusCode statusCode) {

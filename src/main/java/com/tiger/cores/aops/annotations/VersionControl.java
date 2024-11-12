@@ -25,6 +25,7 @@ import com.tiger.cores.constants.enums.VersionControlType;
  * <ul>
  *   <li>{@code GET} - Used when retrieving the record.</li>
  *   <li>{@code UPDATE} - Used when updating the record.</li>
+ *   <li>{@code UPDATE_GET} - Used when updating and GET version of record.</li>
  * </ul>
  * </li>
  * </ul>
@@ -109,7 +110,7 @@ public @interface VersionControl {
      *
      * @return the repository class associated with the entity
      */
-    Class<? extends JpaRepository> repositoryClass() default JpaRepository.class;
+    Class<? extends JpaRepository> repositoryClass();
 
     /**
      * Defines the type of version control action to apply, either retrieving or updating the record.

@@ -1,7 +1,9 @@
 package com.tiger.cores.aops;
 
+import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -147,8 +149,7 @@ public class VersionControlAspect extends AbstractAspect {
         log.info("[VersionControl] versionOfUser: {}", versionOfUser);
 
         // get version of record
-        var recordData = this.getCurrentEntity(objectId, versionControl);
-        String versionOfRecord = recordData.getVersion().toString();
+        String versionOfRecord = getVersionEntity(objectId, versionControl);
         log.info("[VersionControl] versionOfRecord: {}", versionOfRecord);
 
         // check version record
@@ -158,18 +159,38 @@ public class VersionControlAspect extends AbstractAspect {
         }
     }
 
+    private String getVersionControlLock(Object objectId, VersionControl versionControl, Object result) {
+        if (Strings.isBlank(versionControl.version())) {
+            return this.getVersionEntity(objectId, versionControl);
+        }
+
+        return getVersion(getValueByExpressionFromResponse(result, versionControl.version()));
+    }
+
+    private String getVersionEntity(Object objectId, VersionControl versionControl) {
+        var recordData = this.getCurrentEntity(objectId, versionControl.repositoryClass());
+        return getVersion(recordData.getVersion());
+    }
+
+    private String getVersion(Object version) {
+        if (Objects.nonNull(version)) {
+            return version.toString();
+        }
+        return null;
+    }
+
     private Object actionTypeIsGet(
             ProceedingJoinPoint joinPoint, VersionControl versionControl, String username, Object objectId)
             throws Throwable {
         Object result = joinPoint.proceed();
 
         // get config objectVersion from version control
-        var objectVersion = getValueByExpressionFromResponse(result, versionControl.version());
+        String objectVersion = getVersionControlLock(objectId, versionControl, result);
         log.info("[VersionControl] objectVersion: {}", objectVersion);
 
         // cache object into redis with key=username:id, value=version
         versionTrackingService.trackVersion(
-                username, objectId.toString(), objectVersion.toString(), versionControl.versionTrackingTtl());
+                username, objectId.toString(), objectVersion, versionControl.versionTrackingTtl());
 
         return result;
     }
@@ -183,8 +204,8 @@ public class VersionControlAspect extends AbstractAspect {
         return (JpaRepository<T, ID>) applicationContext.getBean(repositoryClass);
     }
 
-    private VersionAuditEntity getCurrentEntity(Object entityId, VersionControl versionControl) {
-        JpaRepository<VersionAuditEntity, Object> repository = getRepository(versionControl.repositoryClass());
+    private VersionAuditEntity getCurrentEntity(Object entityId, Class<?> clazz) {
+        JpaRepository<VersionAuditEntity, Object> repository = getRepository(clazz);
 
         Optional<VersionAuditEntity> recordData = repository.findById(entityId);
         return recordData.orElseThrow(() -> new BusinessLogicException(ErrorCode.RESOURCE_NOT_FOUND));
