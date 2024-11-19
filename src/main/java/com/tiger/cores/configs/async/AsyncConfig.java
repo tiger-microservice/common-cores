@@ -5,11 +5,10 @@ import java.util.concurrent.Executor;
 
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.lang.NonNull;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContext;
@@ -17,26 +16,51 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import lombok.RequiredArgsConstructor;
+
 @EnableAsync
 @Configuration
-public class AsyncConfig {
+@RequiredArgsConstructor
+public class AsyncConfig implements AsyncConfigurer {
 
     @Value("${spring.application.name:service-name}")
     private String appName;
 
-    @Primary
-    @Bean(name = "asyncExecutor")
-    public Executor asyncExecutor() {
+    private final ThreadPoolProperties threadPoolProperties;
+
+    @Override
+    public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(15);
-        executor.setQueueCapacity(1000);
+        // Số lượng luồng cốt lõi, mặc định là 5
+        executor.setCorePoolSize(threadPoolProperties.getCorePoolSize());
+        // Số lượng luồng tối đa, mặc định là 10
+        executor.setMaxPoolSize(threadPoolProperties.getMaxPoolSize());
+        // Độ dài tối đa của hàng đợi, thường cần thiết lập giá trị đủ lớn
+        executor.setQueueCapacity(threadPoolProperties.getQueueCapacity());
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix(appName + "-");
+        // Thời gian chờ tối đa của luồng trong bộ nhớ cache, mặc định là 60s
+        executor.setKeepAliveSeconds(threadPoolProperties.getKeepAliveSeconds());
+        // Cho phép đóng luồng hết thời gian chờ
+        executor.setAllowCoreThreadTimeOut(threadPoolProperties.getAllowCoreThreadTimeOut());
         executor.initialize();
         executor.setTaskDecorator(new ContextCopyingDecorator());
         return executor;
     }
+
+    //    @Primary
+    //    @Bean(name = "asyncExecutor")
+    //    public Executor asyncExecutor() {
+    //        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    //        executor.setCorePoolSize(5);
+    //        executor.setMaxPoolSize(15);
+    //        executor.setQueueCapacity(1000);
+    //        executor.setWaitForTasksToCompleteOnShutdown(true);
+    //        executor.setThreadNamePrefix(appName + "-");
+    //        executor.initialize();
+    //        executor.setTaskDecorator(new ContextCopyingDecorator());
+    //        return executor;
+    //    }
 
     private static class ContextCopyingDecorator implements TaskDecorator {
         @NonNull

@@ -40,6 +40,7 @@ import com.tiger.cores.constants.enums.VersionControlType;
  * @VersionControl(
  *         name = "XXX",
  *         objectIdKey = "#id",
+ *         repositoryClass = XXXXRepository.class,
  *         objectVersionKey = "#result.version")
  * public ResponseEntity<Record> getRecord(@PathVariable Long id) {
  *     // Method logic for fetching the record

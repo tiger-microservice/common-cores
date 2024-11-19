@@ -1,6 +1,5 @@
 package com.tiger.cores.aops;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +11,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -34,7 +31,10 @@ public class LoggingAspect {
     final ObjectMapper objectMapper;
     final LoggingProperties loggingProperties;
 
-    @ConditionalOnProperty(name = "app.log.function", havingValue = "enable", matchIfMissing = true)
+    @ConditionalOnProperty(
+            value = "app.log.function.enable",
+            havingValue = "true" // Nếu giá trị app.security.config.custom  = true thì Bean mới được khởi tạo
+            ) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
     @Around(LoggingConfig.BASE_BEANS_POINTCUT)
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
@@ -55,11 +55,12 @@ public class LoggingAspect {
         log.info("[{}.{}] execution time: {} ms", className, method, stopWatch.getTotalTimeMillis());
 
         // TODO: because response contains file inputstream
-//        if (result instanceof ResponseEntity<?> && ((ResponseEntity<?>) result).getBody() instanceof InputStreamResource) {
-//            log.info("Exit [{}.{}] result: {}", className, method, "file input stream");
-//        } else {
-//            log.info("Exit [{}.{}] result: {}", className, method, markOutput(result));
-//        }
+        //        if (result instanceof ResponseEntity<?> && ((ResponseEntity<?>) result).getBody() instanceof
+        // InputStreamResource) {
+        //            log.info("Exit [{}.{}] result: {}", className, method, "file input stream");
+        //        } else {
+        //            log.info("Exit [{}.{}] result: {}", className, method, markOutput(result));
+        //        }
 
         return result;
     }

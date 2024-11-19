@@ -140,6 +140,7 @@ public class VersionControlAspect extends AbstractAspect {
             }
         }
 
+        log.error("[VersionControl] lock error for user {}", username);
         // if lock data is fail -> throw exception because record used other user, logging user updating this data
         throw throwStaleDataException();
     }

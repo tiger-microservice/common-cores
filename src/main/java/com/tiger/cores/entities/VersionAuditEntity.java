@@ -2,11 +2,12 @@ package com.tiger.cores.entities;
 
 import java.util.UUID;
 
-import com.tiger.cores.listeners.VersionEntityListener;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 
 import org.springframework.data.annotation.Version;
+
+import com.tiger.cores.listeners.VersionEntityListener;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;

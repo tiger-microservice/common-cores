@@ -1,4 +1,4 @@
-package com.tiger.cores.configs.redis;
+package com.tiger.cores.configs.cache;
 
 import jakarta.annotation.PostConstruct;
 

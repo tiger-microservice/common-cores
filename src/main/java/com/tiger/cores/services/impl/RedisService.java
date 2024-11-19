@@ -26,7 +26,7 @@ public class RedisService implements CacheService {
     final RedisTemplate<String, Object> redisTemplate;
 
     public Long increment(String key) {
-        return redisTemplate.opsForValue().increment(key);
+        return redisTemplate.opsForValue().increment(key); // return value first is 1
     }
 
     public Long decrement(String key) {
