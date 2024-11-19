@@ -19,8 +19,11 @@ public class RequestWrapperFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         // Bọc request trong ContentCachingRequestWrapper
-        if (!(request instanceof ContentCachingRequestWrapper)) {
-            request = new ContentCachingRequestWrapper(request);
+        if (request instanceof HttpServletRequest) {
+            String contentType = request.getContentType();
+            if (contentType == null || !contentType.contains("multipart/form-data")) {
+                request = new ContentCachingRequestWrapper(request);
+            }
         }
         filterChain.doFilter(request, response);
     }
