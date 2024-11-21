@@ -1,12 +1,17 @@
 package com.tiger.cores.aops;
 
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.tiger.common.utils.DateUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
@@ -101,6 +106,11 @@ public class VersionControlAspect extends AbstractAspect {
 
     @Around("@annotation(versionControl)")
     public Object handleVersionControl(ProceedingJoinPoint joinPoint, VersionControl versionControl) throws Throwable {
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        String className = methodSignature.getDeclaringType().getSimpleName();
+        String methodName = methodSignature.getName();
+        log.info("[VersionControl] class {} handler version for method {}", className, methodName);
+
         // get username
         String username = getCurrentUsername();
         log.info("[VersionControl] username: {}", username);
@@ -116,9 +126,11 @@ public class VersionControlAspect extends AbstractAspect {
 
         // check if is UPDATE
         String lockKey = generateKeyObject(versionControl.name(), objectId.toString());
+        // username:startDate
+        String valueLock = generateValueLock(username, DateUtil.convertToStr(LocalDateTime.now(), DateUtil.FM_DATE_1));
 
         // check and lock in 30 seconds
-        if (cacheService.lock(lockKey, objectId.toString(), versionControl.timeLockingTtl())) {
+        if (cacheService.lock(lockKey, valueLock, versionControl.timeLockingTtl())) {
             try {
                 // if lock data is true
                 // get version of user
@@ -140,13 +152,15 @@ public class VersionControlAspect extends AbstractAspect {
             }
         }
 
-        log.error("[VersionControl] lock error for user {}", username);
+        var value = cacheService.get(lockKey);
+        log.error("[VersionControl] class {} method {} lock error for user {} valueLock {}",
+                className, methodName, username, value);
         // if lock data is fail -> throw exception because record used other user, logging user updating this data
         throw throwStaleDataException();
     }
 
     private void actionTypeIsUpdate(VersionControl versionControl, String username, Object objectId) {
-        String versionOfUser = this.versionTrackingService.getUserVersion(username, objectId.toString());
+        String versionOfUser = this.versionTrackingService.getUserVersion(versionControl.name(),username, objectId.toString());
         log.info("[VersionControl] versionOfUser: {}", versionOfUser);
 
         // get version of record
@@ -189,8 +203,8 @@ public class VersionControlAspect extends AbstractAspect {
         String objectVersion = getVersionControlLock(objectId, versionControl, result);
         log.info("[VersionControl] objectVersion: {}", objectVersion);
 
-        // cache object into redis with key=username:id, value=version
-        versionTrackingService.trackVersion(
+        // cache object into redis with key=objectName:username:id, value=version
+        versionTrackingService.trackVersion(versionControl.name(),
                 username, objectId.toString(), objectVersion, versionControl.versionTrackingTtl());
 
         return result;
@@ -215,6 +229,10 @@ public class VersionControlAspect extends AbstractAspect {
     // VERSION_CONTROL_LOCK_[ObjectName]:[ObjectId]
     private String generateKeyObject(String objectName, String objectId) {
         return VERSION_CONTROL_LOCK + objectName + AppConstants.KEY_SEPARATOR + objectId;
+    }
+
+    private String generateValueLock(String... args) {
+        return StringUtils.join(args, AppConstants.KEY_SEPARATOR);
     }
 
     private boolean isGetRequest(VersionControlType versionControlType) {
