@@ -3,6 +3,7 @@ package com.tiger.cores.filters;
 import java.io.IOException;
 import java.util.Locale;
 
+import com.tiger.cores.configs.timezone.TimezoneContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,10 +24,14 @@ public class AcceptLanguageFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        LocaleContextHolder.setLocale(getLocale(request));
+        try {
+            LocaleContextHolder.setLocale(getLocale(request));
 
-        // Continue the filter chain
-        filterChain.doFilter(request, response);
+            // Continue the filter chain
+            filterChain.doFilter(request, response);
+        } finally {
+            LocaleContextHolder.resetLocaleContext();
+        }
     }
 
     private Locale getLocale(HttpServletRequest request) {

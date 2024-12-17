@@ -50,7 +50,7 @@ public class SecurityConfig {
         // setting api method post ko can auth
         httpSecurity.authorizeHttpRequests(request ->
                 // permit all public endpoint
-                request.requestMatchers(HttpMethod.POST, securityProperties.getPublicEndpoints())
+                request.requestMatchers(securityProperties.getPublicEndpoints())
                         .permitAll()
                         // permit all swagger
                         .requestMatchers("/v3/**", "/swagger-ui/**", "/actuator/*")

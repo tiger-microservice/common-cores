@@ -26,4 +26,8 @@ public interface CacheService {
     boolean lock(String key, String value, long milliSeconds);
 
     void releaseLock(String key);
+
+    void saveValueBitmap(String value, String bitmapKey);
+
+    boolean isValueExistsBitmap(String value, String bitmapKey);
 }
