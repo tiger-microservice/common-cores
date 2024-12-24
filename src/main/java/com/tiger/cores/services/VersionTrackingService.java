@@ -9,8 +9,6 @@ import com.tiger.cores.exceptions.StaleDataException;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-
 @Service
 @RequiredArgsConstructor
 public class VersionTrackingService {
@@ -35,7 +33,7 @@ public class VersionTrackingService {
     }
 
     // objectName:username:id=version
-    private String getKey(String...args) {
+    private String getKey(String... args) {
         return VERSION_KEY + AppConstants.KEY_SEPARATOR + StringUtils.join(args, AppConstants.KEY_SEPARATOR);
     }
 }

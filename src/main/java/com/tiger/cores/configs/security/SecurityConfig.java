@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,9 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @ConditionalOnProperty(
         value = "app.security.config.enable",
-        havingValue = "true", // Nếu giá trị app.security.config.custom  = true thì Bean mới được khởi tạo
-        matchIfMissing =
-                true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
+        havingValue = "true", // Nếu giá trị app.security.config.enable = true thì Bean mới được khởi tạo
+        matchIfMissing = true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
 public class SecurityConfig {
 
     final Translator translator;

@@ -24,7 +24,6 @@ public enum SensitiveStrategy {
      */
     ADDRESS(s -> s.replaceAll("(\\S{3})\\S{2}(\\S*)\\S{2}", "$1****$2****"));
 
-
     private final Function<String, String> maskingFunction;
 
     SensitiveStrategy(Function<String, String> maskingFunction) {

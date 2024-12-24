@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import com.tiger.cores.utils.HashUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -109,31 +110,15 @@ public class RedisService implements CacheService {
     // Lưu value vào bitmap
     @Override
     public void saveValueBitmap(String value, String bitmapKey) {
-        long offset = hashValue(value);
+        long offset = HashUtil.hashValue(value);
         redisTemplate.opsForValue().setBit(bitmapKey, offset, true);
     }
 
     // Kiểm tra value đã tồn tại hay chưa
     @Override
     public boolean isValueExistsBitmap(String value, String bitmapKey) {
-        long offset = hashValue(value);
+        long offset = HashUtil.hashValue(value);
         Boolean exists = redisTemplate.opsForValue().getBit(bitmapKey, offset);
         return Boolean.TRUE.equals(exists);
     }
-
-    // Hàm băm value để tạo ra offset
-    private long hashValue(String value) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
-            // Chuyển hash thành số nguyên dương
-            return Math.abs(((long) hash[0] & 0xff) |
-                    ((long) hash[1] & 0xff) << 8 |
-                    ((long) hash[2] & 0xff) << 16 |
-                    ((long) hash[3] & 0xff) << 24);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing value", e);
-        }
-    }
-
 }

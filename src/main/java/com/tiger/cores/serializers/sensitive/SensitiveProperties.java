@@ -23,7 +23,6 @@ public class SensitiveProperties {
      */
     private Integer dataMaskingLevel = 0;
 
-
     public Boolean getDemoMode() {
         if (demoMode == null) {
             return false;

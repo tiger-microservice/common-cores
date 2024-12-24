@@ -1,11 +1,9 @@
 package com.tiger.cores.aops;
 
-import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.tiger.common.utils.DateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
+import com.tiger.common.utils.DateUtil;
 import com.tiger.cores.aops.annotations.VersionControl;
 import com.tiger.cores.constants.AppConstants;
 import com.tiger.cores.constants.enums.VersionControlType;
@@ -153,14 +152,19 @@ public class VersionControlAspect extends AbstractAspect {
         }
 
         var value = cacheService.get(lockKey);
-        log.error("[VersionControl] class {} method {} lock error for user {} valueLock {}",
-                className, methodName, username, value);
+        log.error(
+                "[VersionControl] class {} method {} lock error for user {} valueLock {}",
+                className,
+                methodName,
+                username,
+                value);
         // if lock data is fail -> throw exception because record used other user, logging user updating this data
         throw throwStaleDataException();
     }
 
     private void actionTypeIsUpdate(VersionControl versionControl, String username, Object objectId) {
-        String versionOfUser = this.versionTrackingService.getUserVersion(versionControl.name(),username, objectId.toString());
+        String versionOfUser =
+                this.versionTrackingService.getUserVersion(versionControl.name(), username, objectId.toString());
         log.info("[VersionControl] versionOfUser: {}", versionOfUser);
 
         // get version of record
@@ -204,8 +208,12 @@ public class VersionControlAspect extends AbstractAspect {
         log.info("[VersionControl] objectVersion: {}", objectVersion);
 
         // cache object into redis with key=objectName:username:id, value=version
-        versionTrackingService.trackVersion(versionControl.name(),
-                username, objectId.toString(), objectVersion, versionControl.versionTrackingTtl());
+        versionTrackingService.trackVersion(
+                versionControl.name(),
+                username,
+                objectId.toString(),
+                objectVersion,
+                versionControl.versionTrackingTtl());
 
         return result;
     }
@@ -222,6 +230,7 @@ public class VersionControlAspect extends AbstractAspect {
     private VersionAuditEntity getCurrentEntity(Object entityId, Class<?> clazz) {
         JpaRepository<VersionAuditEntity, Object> repository = getRepository(clazz);
 
+        repository.flush();
         Optional<VersionAuditEntity> recordData = repository.findById(entityId);
         return recordData.orElseThrow(() -> new BusinessLogicException(ErrorCode.RESOURCE_NOT_FOUND));
     }

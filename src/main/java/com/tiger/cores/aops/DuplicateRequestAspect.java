@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
-import com.tiger.cores.utils.JsonUtil;
+import com.tiger.cores.utils.HashUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -23,6 +23,7 @@ import com.tiger.cores.dtos.RequestDataDto;
 import com.tiger.cores.exceptions.DuplicateRequestException;
 import com.tiger.cores.exceptions.ErrorCode;
 import com.tiger.cores.services.CacheService;
+import com.tiger.cores.utils.JsonUtil;
 import com.tiger.cores.utils.UserInfoUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -69,8 +70,8 @@ public class DuplicateRequestAspect {
         }
 
         // Lưu request mới vào Redis
-        RequestDataDto newRequest =
-                new RequestDataDto(userId, request.getRequestURI(), JsonUtil.castToString(joinPoint.getArgs()), LocalDateTime.now());
+        RequestDataDto newRequest = new RequestDataDto(
+                userId, request.getRequestURI(), JsonUtil.castToString(joinPoint.getArgs()), LocalDateTime.now());
 
         cacheService.put(
                 requestKey, ObjectMapperUtil.castToString(newRequest), preventDuplicateRequest.timeoutSeconds());
@@ -80,9 +81,6 @@ public class DuplicateRequestAspect {
     }
 
     private String generateRequestKey(ProceedingJoinPoint joinPoint, String userId) {
-        return userId +
-                request.getRequestURI() +
-                JsonUtil.castToString(joinPoint.getArgs());
+        return userId + request.getRequestURI() + HashUtil.hashValue(JsonUtil.castToString(joinPoint.getArgs()));
     }
-
 }
