@@ -54,6 +54,7 @@ public class DuplicateRequestAspect {
         boolean isLocked = lock.tryLock(preventDuplicateRequest.timeoutSeconds(), TimeUnit.SECONDS);
 
         if (!isLocked) {
+            log.error("Locked with key {}", requestKey);
             throw new DuplicateRequestException(ErrorCode.DUPLICATE_REQUEST);
         }
 
@@ -64,6 +65,7 @@ public class DuplicateRequestAspect {
             long secondsBetween = ChronoUnit.SECONDS.between(requestDataDto.getTimestamp(), LocalDateTime.now());
 
             if (secondsBetween < preventDuplicateRequest.timeoutSeconds()) {
+                log.error("Locked with key {}", requestKey);
                 throw new DuplicateRequestException(
                         ErrorCode.DUPLICATE_REQUEST, (preventDuplicateRequest.timeoutSeconds() - secondsBetween));
             }
@@ -81,6 +83,7 @@ public class DuplicateRequestAspect {
     }
 
     private String generateRequestKey(ProceedingJoinPoint joinPoint, String userId) {
-        return userId + request.getRequestURI() + HashUtil.hashValue(JsonUtil.castToString(joinPoint.getArgs()));
+        String valueKey = userId + request.getRequestURI() + JsonUtil.castToString(joinPoint.getArgs());
+        return HashUtil.hashValue(valueKey) + "";
     }
 }
