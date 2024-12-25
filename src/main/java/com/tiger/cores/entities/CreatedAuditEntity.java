@@ -2,6 +2,7 @@ package com.tiger.cores.entities;
 
 import java.time.LocalDateTime;
 
+import com.tiger.cores.listeners.AuditEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -22,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, AuditEntityListener.class})
 public class CreatedAuditEntity {
 
     @Column(name = "created_date")
