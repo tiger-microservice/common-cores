@@ -20,14 +20,9 @@
         <spotless.version>2.43.0</spotless.version>
         <jasypt.version>3.0.4</jasypt.version>
         <redission.version>3.19.0</redission.version>
+        <guava-version>33.2.1-jre</guava-version>
     </properties>
     <dependencies>
-
-        <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-boot-starter</artifactId>
-            <version>${redission.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>com.tiger</groupId>
@@ -50,11 +45,24 @@
         </dependency>
 
         <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>${redission.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>5.0.2</version>
         </dependency>
         <!--redis-->
+
+        <!--local cache-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava-version}</version>
+        </dependency>
 
         <!--swagger ui-->
         <dependency>
