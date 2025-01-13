@@ -7,13 +7,11 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -30,20 +28,21 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "app.secure.xss.enable", havingValue = "true", matchIfMissing = true)
 public class XssValidationAspect {
+
+    @Value("${app.secure.xss.enable:true}")
+    Boolean enableXssCheck;
+
     private static final String PACKAGE_CONTAIN_VALUE = ".tiger.";
     private static final String XSS_PATTERNS_REGEX =
-            "(?i)(<(script|iframe|object|embed|form|meta)[^>]*>|" + "<\\/(script|iframe|object|embed|form|meta)>|"
-                    + "\\bon\\w+\\s*=\\s*[\"'][^\"'>]*[a-zA-Z][^\"'>]*[\"']|"
+            "(?i)(<(script|iframe|object|embed|form|meta)[^>]*>|" + "</(script|iframe|object|embed|form|meta)>|"
+                    + "\\bon\\w+\\s*=\\s*[\"'][^\"'>]*[a-z][^\"'>]*[\"']|"
                     + "expression\\([^)]*\\)|"
                     + "url\\(\\s*javascript:[^)]*\\)|"
-                    + "data:\\s*(text\\/html|application\\/xml)[^,]*|"
+                    + "data:\\s*(text/html|application/xml)[^,]*|"
                     + "javascript:|vbscript:)";
-    String a = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<memberenquiry>\n";
 
     private final ObjectMapper mapper;
-    private final HttpServletRequest request;
 
     @Before(LoggingConfig.REST_CONTROLLER_BEANS_POINTCUT)
     public void validateXssForRequest(JoinPoint joinPoint) throws Throwable {
@@ -54,7 +53,7 @@ public class XssValidationAspect {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            if (method.isAnnotationPresent(InternalOnly.class)) {
+            if (method.isAnnotationPresent(InternalOnly.class) || Boolean.FALSE.equals(enableXssCheck)) {
                 log.info("[validateXssForRequest] class {} validate xss for method {} ignore", className, methodName);
                 return;
             }
@@ -95,7 +94,7 @@ public class XssValidationAspect {
                 continue;
             }
             if (obj instanceof String) {
-                validateXssForString(obj);
+                validateXssForString((String) obj);
             } else {
                 validateXssForObject(obj);
             }
@@ -109,8 +108,8 @@ public class XssValidationAspect {
         validateXssForString(jsonValue);
     }
 
-    private void validateXssForString(Object value) {
-        if (Boolean.TRUE.equals(isXSS((String) value))) {
+    private void validateXssForString(String value) {
+        if (isXSS(value)) {
             log.error("[validateXssForString] invalid xss with value {}", value);
             throw new BusinessLogicException(ErrorCode.XSS_REQUEST_INVALID);
         }

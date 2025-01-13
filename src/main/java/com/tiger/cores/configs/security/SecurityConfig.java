@@ -32,7 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnProperty(
         value = "app.security.config.enable",
         havingValue = "true", // Nếu giá trị app.security.config.enable = true thì Bean mới được khởi tạo
-        matchIfMissing = true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
+        matchIfMissing =
+                true) // matchIFMissing là giá trị mặc định nếu không tìm thấy property app.security.config.custom
 public class SecurityConfig {
 
     final Translator translator;

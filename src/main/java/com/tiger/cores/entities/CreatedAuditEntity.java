@@ -2,7 +2,6 @@ package com.tiger.cores.entities;
 
 import java.time.LocalDateTime;
 
-import com.tiger.cores.listeners.AuditEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -10,6 +9,8 @@ import jakarta.persistence.MappedSuperclass;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.tiger.cores.listeners.AuditEntityListener;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
