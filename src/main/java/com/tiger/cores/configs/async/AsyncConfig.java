@@ -48,20 +48,6 @@ public class AsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
-    //    @Primary
-    //    @Bean(name = "asyncExecutor")
-    //    public Executor asyncExecutor() {
-    //        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    //        executor.setCorePoolSize(5);
-    //        executor.setMaxPoolSize(15);
-    //        executor.setQueueCapacity(1000);
-    //        executor.setWaitForTasksToCompleteOnShutdown(true);
-    //        executor.setThreadNamePrefix(appName + "-");
-    //        executor.initialize();
-    //        executor.setTaskDecorator(new ContextCopyingDecorator());
-    //        return executor;
-    //    }
-
     private static class ContextCopyingDecorator implements TaskDecorator {
         @NonNull
         @Override

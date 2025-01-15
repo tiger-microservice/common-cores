@@ -35,18 +35,23 @@ public class RequestIdFilter extends OncePerRequestFilter {
 
     private void addRequestId(HttpServletRequest request, HttpServletResponse response) {
         // Generate a unique request ID
-        String requestId = request.getHeader(AppConstants.APP_REQUEST_ID);
-        String requestIdService = UUID.randomUUID().toString();
+        String gatewayRequestId = request.getHeader(AppConstants.APP_REQUEST_ID);
+        String requestIdService = getValueUUID();
 
-        if (requestId == null) {
+        if (gatewayRequestId == null) {
             // Add the request ID to the response header
-            requestId = requestIdService;
+            gatewayRequestId = requestIdService;
         } else {
-            requestId = requestId + " " + requestIdService;
+            gatewayRequestId = gatewayRequestId + " " + requestIdService;
         }
 
-        MDC.put(AppConstants.MDC_CORRELATION_ID, requestIdService);
+        MDC.put(AppConstants.MDC_CORRELATION_ID, gatewayRequestId);
 
-        response.addHeader(AppConstants.APP_REQUEST_ID, requestId);
+        response.addHeader(AppConstants.APP_REQUEST_ID, gatewayRequestId);
+    }
+
+    private String getValueUUID() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().replaceAll("-", "");
     }
 }

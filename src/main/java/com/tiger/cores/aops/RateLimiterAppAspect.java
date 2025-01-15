@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class RateLimiterAspect extends AbstractAspect {
+public class RateLimiterAppAspect extends AbstractAspect {
 
     final RedisRateLimiter redisRateLimiter;
 

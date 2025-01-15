@@ -16,7 +16,7 @@ public final class AppConstants {
 
     public static final String APP_CLIENT_SITE = "app-client-site";
 
-    public static final String MDC_CORRELATION_ID = "correlationId";
+    public static final String MDC_CORRELATION_ID = "COLLECTION_ID";
 
     public static final String APP_USER_AGENT = "user-agent";
 

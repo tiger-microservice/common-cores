@@ -24,4 +24,8 @@ public final class UserInfoUtil {
         String dataJson = SecurityUtils.getClaim(AppConstants.JwtKey.DATA);
         return JsonUtil.castToObject(dataJson, UserPayloadDto.class);
     }
+
+    public static boolean isSystemAdmin() {
+        return false;
+    }
 }
