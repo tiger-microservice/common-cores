@@ -22,6 +22,9 @@ public enum ErrorCode implements BaseError {
     DUPLICATE_REQUEST("MCM00013", HttpStatus.BAD_REQUEST),
     CONCURRENT_REQUEST_ERROR("MCM00014", HttpStatus.BAD_REQUEST),
     TIMEOUT("MCM00015", HttpStatus.REQUEST_TIMEOUT),
+    UPDATE_TOPIC_ERROR("MCM00016", HttpStatus.BAD_REQUEST),
+    DELETE_TOPIC_ERROR("MCM00017", HttpStatus.BAD_REQUEST),
+    CREATE_TOPIC_ERROR("MCM00018", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(String messageCode, HttpStatusCode statusCode) {

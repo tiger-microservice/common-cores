@@ -25,6 +25,8 @@ public class CookieUtil {
             Cookie cookie = new Cookie(cookieKey, cookieValue);
             cookie.setMaxAge(maxAge);
             cookie.setPath("/");
+            cookie.setHttpOnly(true); // Ngăn chặn truy cập từ JavaScript
+            cookie.setSecure(true); // Chỉ gửi cookie qua HTTPS
             response.addCookie(cookie);
         } catch (Exception e) {
             log.error("Thêm cookie lỗi", e);
