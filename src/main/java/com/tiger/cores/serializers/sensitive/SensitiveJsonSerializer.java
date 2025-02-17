@@ -55,6 +55,6 @@ public class SensitiveJsonSerializer extends JsonSerializer<String>
      * @return
      */
     private boolean desensitization() {
-        return false;
+        return true;
     }
 }

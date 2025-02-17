@@ -19,8 +19,9 @@ import com.tiger.cores.configs.logging.LoggingConfig;
 import com.tiger.cores.configs.timezone.TimezoneContext;
 import com.tiger.cores.dtos.responses.ApiResponse;
 
-@Aspect
-@Component
+// TODO: check bug convert timezone
+//@Aspect
+//@Component
 public class TimeZoneAspect {
 
     @Around(LoggingConfig.REST_CONTROLLER_BEANS_POINTCUT)

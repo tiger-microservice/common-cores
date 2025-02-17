@@ -1,10 +1,11 @@
 package com.tiger.cores.generators;
 
-import com.tiger.common.ulid.UlidCreator;
+import java.io.Serializable;
+
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 
-import java.io.Serializable;
+import com.tiger.common.ulid.UlidCreator;
 
 public class UlidGenerator implements IdentifierGenerator {
 

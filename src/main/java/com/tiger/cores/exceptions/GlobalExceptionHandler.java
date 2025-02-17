@@ -11,6 +11,7 @@ import jakarta.validation.ConstraintViolation;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -121,6 +122,15 @@ public class GlobalExceptionHandler {
                         errorCode.getHttpStatusCode().value(),
                         errorCode.getMessageCode(),
                         translator.toMessage(errorCode.getMessageCode(), exception.getParams())));
+    }
+
+    @ExceptionHandler(value = AuthorizationDeniedException.class)
+    ResponseEntity<ApiResponse<Object>> handlingAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.responseError(
+                        HttpStatus.FORBIDDEN.value(),
+                        HttpStatus.FORBIDDEN.name(),
+                        HttpStatus.FORBIDDEN.getReasonPhrase()));
     }
 
     @ExceptionHandler(value = Exception.class)
