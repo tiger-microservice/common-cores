@@ -1,10 +1,10 @@
 package com.tiger.cores.dtos.responses;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.util.Collections;
 import java.util.List;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
@@ -14,6 +14,7 @@ import java.util.List;
 public class PageResponse<T> {
     int totalPages;
     int pageSize;
+    int currentPage;
     long totalElements;
 
     @Builder.Default
